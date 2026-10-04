@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark bg-[#06080d] text-[#e6edf3] scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МУРСОКО // MURSOKO - Network & Restricted Chat Platform</title>
+    
+    <!-- Tailwind CSS & Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,800;1,400&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#06080d',
+                            card: '#0d121d',
+                            border: '#1a2436',
+                            accent: '#00ffcc',
+                            blue: '#3b82f6',
+                            emerald: '#10b981',
+                            purple: '#8a2be2',
+                            red: '#ff2a6d',
+                            text: '#e6edf3',
+                            muted: '#6b7b95'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #06080d;
+            color: #e6edf3;
+            overflow-x: hidden;
+        }
+
+        .grid-pattern {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(26, 36, 54, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(26, 36, 54, 0.3) 1px, transparent 1px);
+        }
+
+        .glow-accent {
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.12);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #06080d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a2436;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ffcc;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between grid-pattern relative selection:bg-[#00ffcc] selection:text-black">
+
+    <header class="sticky top-0 z-40 bg-[#06080d]/90 backdrop-blur-md border-b border-[#1a2436]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="w-2.5 h-2.5 bg-[#00ffcc] rounded-full animate-pulse"></span>
+                <a href="#" class="font-orbitron font-extrabold text-xl tracking-wider text-white hover:text-[#00ffcc] transition-colors">
+                    МУРСОКО <span class="text-[#00ffcc]">//</span> MURSOKO
+                </a>
+            </div>
+
+            <!-- Network Status Pill -->
+            <div class="hidden lg:flex items-center gap-3 text-xs bg-[#0d121d] px-3.5 py-1.5 rounded-lg border border-[#1a2436]">
+                <span class="text-gray-400">STATUS: <strong class="text-emerald-400 font-mono">ONLINE</strong></span>
+                <span class="text-gray-600">|</span>
+                <span class="text-gray-400">ENCRYPTION: <strong class="text-emerald-400 font-mono">AES-256 GCM</strong></span>
+                <span class="text-gray-600">|</span>
+                <span class="text-gray-400">CLEARANCE: <strong id="headerClearanceText" class="text-amber-400 font-mono">GUEST</strong></span>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-6 text-xs font-semibold tracking-wider">
+                <a href="#chats" class="hover:text-[#00ffcc] transition-colors py-1 flex items-center gap-1.5">
+                    <i data-lucide="message-square" class="w-3.5 h-3.5 text-[#00ffcc]"></i> ЧАТЫ СЕКТОРОВ
+                </a>
+                <a href="#guide" class="hover:text-[#00ffcc] transition-colors py-1">КАК НАЧАТЬ</a>
+                <a href="#studio" class="hover:text-[#00ffcc] transition-colors py-1">МАСТЕРСКАЯ</a>
+                <a href="#team" class="hover:text-[#00ffcc] transition-colors py-1">ВЫСШИЙ СОВЕТ</a>
+                <a href="#physics" class="hover:text-[#00ffcc] transition-colors py-1">ФИЗИКА СЕТИ</a>
+                <a href="#terminal" class="hover:text-[#00ffcc] transition-colors py-1">ТЕРМИНАЛ</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button id="authHeaderBtn" onclick="openAuthModal('login')" class="px-4 py-2 rounded-lg bg-[#0d121d] border border-[#00ffcc]/40 hover:border-[#00ffcc] text-white font-orbitron font-bold text-xs tracking-wider transition-all flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#00ffcc]"></i>
+                    <span id="authBtnText">ВХОД / АНКЕТА</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="py-8 lg:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/30 text-xs font-mono">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span>ЗАКРЫТАЯ КИБЕР-СТРУКТУРА | РОЛЕВОЙ ДОСТУП</span>
+                    </div>
+
+                    <h1 class="font-orbitron text-3xl sm:text-5xl font-black text-white leading-tight">
+                        МУРСОКО <br/>
+                        <span class="text-[#00ffcc]">ЗАЩИЩЕННЫЕ ЧАТЫ И СЕТЬ</span>
+                    </h1>
+
+                    <p class="text-gray-400 text-sm sm:text-base leading-relaxed">
+                        Единая система коммуникации. Члены Высшего Совета (5 руководителей) обладают полными правами управления всеми ресурсами, чатами и заявками рекрутов.
+                    </p>
+
+                    <!-- Active User Profile Dashboard Widget -->
+                    <div id="userAccountCard" class="hidden bg-[#0d121d] border border-[#00ffcc]/50 rounded-xl p-5 glow-accent text-xs font-mono space-y-3">
+                        <div class="flex items-center justify-between border-b border-[#1a2436] pb-3">
+                            <div class="flex items-center gap-3">
+                                <div id="userCardAvatar" class="w-10 h-10 rounded bg-[#00ffcc]/10 border border-[#00ffcc] flex items-center justify-center text-[#00ffcc]">
+                                    <i data-lucide="user-check" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 text-[10px]">АКТИВНАЯ СЕССИЯ:</span>
+                                    <h4 id="userCardNick" class="font-orbitron font-bold text-white text-base"></h4>
+                                </div>
+                            </div>
+                            <span id="userCardRole" class="px-2.5 py-1 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">ОПЕРАТИВНИК</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-gray-300">
+                            <div>
+                                <span class="text-gray-500 text-[10px] block">УРОВЕНЬ ДОПУСКА:</span>
+                                <strong id="userClearance" class="text-[#00ffcc]">LEVEL 1</strong>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-[10px] block">ПРАВА В ЧАТАХ:</span>
+                                <span id="userChatAccess" class="text-emerald-400">ОБЩИЕ КАНАЛЫ</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex items-center justify-between border-t border-[#1a2436]">
+                            <span class="text-gray-400 text-[11px]">Шифрованное соединение установлено.</span>
+                            <button onclick="logoutUser()" class="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded hover:bg-red-500/30 font-bold transition-colors">
+                                ВЫЙТИ ИЗ АККАУНТА
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="heroActionBtns" class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="openAuthModal('login')" class="px-6 py-3 rounded-lg bg-[#00ffcc] text-black hover:bg-cyan-300 font-orbitron font-bold text-xs tracking-wider transition-all flex items-center gap-2">
+                            <i data-lucide="key" class="w-4 h-4"></i> ВХОД В АККАУНТ
+                        </button>
+                        <button onclick="openAuthModal('register')" class="px-6 py-3 rounded-lg bg-[#0d121d] border border-[#1a2436] hover:border-[#3b82f6] text-white font-orbitron font-bold text-xs tracking-wider transition-all flex items-center gap-2">
+                            <i data-lucide="clipboard-check" class="w-4 h-4 text-[#3b82f6]"></i> ПОДАТЬ АНКЕТУ РЕКРУТА
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5" id="physics">
+                    <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl p-5 glow-accent">
+                        <div class="flex justify-between items-center mb-3 border-b border-[#1a2436] pb-3">
+                            <div>
+                                <h3 class="font-orbitron font-bold text-white text-sm">ИНТЕРАКТИВНАЯ ФИЗИКА СЕТИ</h3>
+                                <p class="text-[11px] text-gray-500">Симуляция связей между узлами и участниками</p>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono rounded border border-emerald-500/20">REALTIME MESH</span>
+                        </div>
+                        
+                        <canvas id="physicsCanvas" class="w-full h-60 bg-[#06080d] rounded border border-[#1a2436] cursor-crosshair"></canvas>
+
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs font-mono">
+                            <div class="bg-[#06080d] p-2 rounded border border-[#1a2436]">
+                                <span class="text-gray-500 block text-[10px]">ЗАДЕРЖКА</span>
+                                <span id="telemetryPing" class="text-[#00ffcc] font-bold">10.4 ms</span>
+                            </div>
+                            <div class="bg-[#06080d] p-2 rounded border border-[#1a2436]">
+                                <span class="text-gray-500 block text-[10px]">ДЖИТТЕР</span>
+                                <span id="telemetryJitter" class="text-blue-400 font-bold">0.1 ms</span>
+                            </div>
+                            <div class="bg-[#06080d] p-2 rounded border border-[#1a2436]">
+                                <span class="text-gray-500 block text-[10px]">АКТИВНЫЕ УЗЛЫ</span>
+                                <span id="telemetryNodes" class="text-emerald-400 font-bold">35 NODES</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="guide" class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl p-6 sm:p-8">
+                <span class="text-[#00ffcc] text-xs font-mono">// GUIDE FOR NEW VISITORS</span>
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-1 mb-6"><div><h2 class="font-orbitron text-2xl font-bold text-white">КАК НАЧАТЬ</h2><p class="text-xs text-gray-400 mt-2">Короткое знакомство с МУРСОКО для тех, кто здесь впервые.</p></div><button onclick="openAuthModal('register')" class="px-4 py-2 bg-[#00ffcc] text-black rounded-lg text-xs font-bold">ПОДАТЬ ЗАЯВКУ</button></div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <article class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4"><span class="text-[#00ffcc] font-orbitron text-sm">01 · ОСМОТРИТЕСЬ</span><h3 class="text-white font-bold mt-2">Посмотрите разделы</h3><p class="text-xs text-gray-400 mt-2">В «Мастерской» можно попробовать редактор кода, конструктор сайтов, дизайн, фото и видео. Для этих локальных инструментов регистрация не нужна.</p><a href="#studio" class="inline-block text-xs text-[#00ffcc] mt-3">Открыть мастерскую →</a></article>
+                    <article class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4"><span class="text-[#00ffcc] font-orbitron text-sm">02 · ПОДАЙТЕ АНКЕТУ</span><h3 class="text-white font-bold mt-2">Заполните форму</h3><p class="text-xs text-gray-400 mt-2">Укажите имя или игровой ник, контакт, направление и ответы на вопросы. Анкета отправится на рассмотрение пяти основателей.</p><button onclick="openAuthModal('register')" class="text-xs text-[#00ffcc] mt-3">Открыть анкету →</button></article>
+                    <article class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4"><span class="text-[#00ffcc] font-orbitron text-sm">03 · ДОЖДИТЕСЬ ОТВЕТА</span><h3 class="text-white font-bold mt-2">Войдите после одобрения</h3><p class="text-xs text-gray-400 mt-2">После одобрения основатели выдадут вам логин и пароль. Войдите, чтобы открыть доступные чаты и личные сообщения.</p><button onclick="openAuthModal('login')" class="text-xs text-[#00ffcc] mt-3">У меня уже есть аккаунт →</button></article>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-5">Гостям доступны знакомство с сайтом и мастерская. Общение в чатах открывается авторизованным участникам.</p>
+            </div>
+        </section>
+
+        <section id="chats" class="py-12 bg-[#080c14] border-y border-[#1a2436]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                    <div>
+                        <span class="text-[#00ffcc] text-xs font-mono">// PROTECTED CHAT SYSTEM</span>
+                        <h2 class="font-orbitron text-2xl sm:text-4xl font-bold text-white mt-1">ЧАТЫ И КАНАЛЫ СВЯЗИ</h2>
+                        <p class="text-xs text-gray-400 mt-1">Доступ предоставляется только зарегистрированным участникам в соответствии с их уровнем.</p>
+                    </div>
+
+                    <!-- Core Council Admin Chat Controller Button (Visible ONLY to the 5 Core Founders) -->
+                    <div id="chatAdminControlBtn" class="hidden">
+                        <button onclick="toggleChatManageModal()" class="px-4 py-2.5 bg-[#8a2be2]/20 hover:bg-[#8a2be2]/40 text-[#8a2be2] border border-[#8a2be2]/50 rounded-lg text-xs font-orbitron font-bold transition-all flex items-center gap-2 glow-purple">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> СОЗДАТЬ / НАСТРОИТЬ ЧАТ (ОСНОВАТЕЛИ)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Unauthenticated Lock Banner (Shown if guest) -->
+                <div id="chatGuestLockBanner" class="bg-[#0d121d] border border-amber-500/40 rounded-xl p-8 text-center space-y-4 glow-accent">
+                    <div class="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
+                        <i data-lucide="lock" class="w-8 h-8"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-orbitron text-xl font-bold text-white">ДОСТУП К ЧАТАМ ЗАКРЫТ</h3>
+                        <p class="text-xs text-gray-400 max-w-lg mx-auto">
+                            Просмотр и отправка сообщений в чатах МУРСОКО доступны исключительно авторизованным операторам и членам совета.
+                        </p>
+                    </div>
+                    <div class="pt-2 flex justify-center gap-4">
+                        <button onclick="openAuthModal('login')" class="px-5 py-2.5 bg-[#00ffcc] text-black font-orbitron font-bold text-xs rounded hover:bg-cyan-300 transition-all">
+                            ВОЙТИ В АККАУНТ
+                        </button>
+                        <button onclick="openAuthModal('register')" class="px-5 py-2.5 bg-[#1a2436] text-white font-orbitron font-bold text-xs rounded hover:bg-gray-700 transition-all">
+                            ПОДАТЬ АНКЕТУ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Authenticated Chat Interface Box -->
+                <div id="chatMainContainer" class="hidden bg-[#0d121d] border border-[#1a2436] rounded-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[520px] glow-accent">
+                    
+                    <!-- Left Sidebar: Channels & Categories -->
+                    <div class="lg:col-span-4 border-r border-[#1a2436] bg-[#090d16] p-4 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-[#1a2436] pb-3">
+                                <span class="text-xs font-orbitron font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="message-square" class="w-4 h-4 text-[#00ffcc]"></i> ВАШИ ДОСТУПНЫЕ ЧАТЫ
+                                </span>
+                                <span id="userRoleBadgeInChat" class="text-[10px] bg-[#1a2436] text-[#00ffcc] px-2 py-0.5 rounded font-mono">OPERATIVE</span>
+                            </div>
+
+                            <div id="channelList" class="space-y-2"><!-- Dynamic Channels rendering based on permissions --></div>
+                            <div class="border-t border-[#1a2436] pt-4 space-y-3">
+                                <div class="flex justify-between"><span class="text-xs font-orbitron font-bold text-white">ЛИЧНЫЕ СООБЩЕНИЯ</span><span class="text-[9px] text-gray-500">1 НА 1</span></div>
+                                <select id="dmRecipientSelect" class="w-full bg-[#06080d] border border-[#1a2436] rounded-lg p-2.5 text-white text-xs"></select>
+                                <button onclick="startDirectMessage()" class="w-full px-3 py-2 bg-[#00ffcc]/10 text-[#00ffcc] border border-[#00ffcc]/30 rounded-lg text-xs font-bold">ОТКРЫТЬ ЛИЧНЫЙ ЧАТ</button>
+                                <button id="broadcastButton" onclick="startBroadcast()" class="hidden w-full px-3 py-2 bg-purple-500/10 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-bold">РАССЫЛКА ВСЕМ УЧАСТНИКАМ</button>
+                                <button onclick="viewBroadcast()" class="w-full px-3 py-2 bg-[#1a2436] text-gray-200 border border-[#26344c] rounded-lg text-xs font-bold">ОБЪЯВЛЕНИЯ ДЛЯ ВСЕХ</button>
+                                <div id="directConversationList" class="space-y-1 max-h-36 overflow-y-auto"></div><p class="text-[10px] text-gray-500">Локальный демо-режим: переписки хранятся в этом браузере и не синхронизируются между устройствами.</p>
+                            </div>
+                        </div>
+
+                        <div id="chatSidebarFooter" class="pt-4 border-t border-[#1a2436] text-[11px] text-gray-500 font-mono space-y-1">
+                            <!-- Dynamic status info -->
+                        </div>
+                    </div>
+
+                    <!-- Right Main Area: Active Chat Window -->
+                    <div class="lg:col-span-8 flex flex-col justify-between bg-[#06080d]">
+                        <!-- Chat Header -->
+                        <div class="p-4 bg-[#0d121d] border-b border-[#1a2436] flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div id="activeChannelIcon" class="w-9 h-9 rounded bg-[#00ffcc]/10 border border-[#00ffcc] flex items-center justify-center text-[#00ffcc]">
+                                    <i data-lucide="hash" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 id="activeChannelTitle" class="font-orbitron font-bold text-white text-sm">#junior-ops</h3>
+                                    <p id="activeChannelDesc" class="text-xs text-gray-400">Чат младшего состава и общего общения</p>
+                                </div>
+                            </div>
+
+                            <span id="activeChannelBadge" class="px-2.5 py-1 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                ДОСТУП РАЗРЕШЁН
+                            </span>
+                        </div>
+
+                        <!-- Chat Messages Feed -->
+                        <div id="chatMessagesBox" class="p-4 space-y-4 overflow-y-auto h-96 font-mono text-xs">
+                            <!-- Dynamic messages -->
+                        </div>
+
+                        <!-- Chat Input Bar -->
+                        <div class="p-3 bg-[#0d121d] border-t border-[#1a2436]">
+                            <form id="chatForm" onsubmit="sendChatMessage(event)" class="flex items-center gap-2">
+                                <input type="text" id="chatInput" placeholder="Напишите сообщение в чат..." required class="flex-grow bg-[#06080d] border border-[#1a2436] rounded-lg p-2.5 text-white focus:outline-none focus:border-[#00ffcc] font-mono text-xs">
+                                <button type="submit" class="px-4 py-2.5 bg-[#00ffcc] hover:bg-cyan-300 text-black font-orbitron font-bold rounded-lg transition-all flex items-center gap-1">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="studio" class="py-16 bg-[#080c14] border-y border-[#1a2436]"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-7"><span class="text-[#00ffcc] text-xs font-mono">// CREATIVE WORKSPACE</span><h2 class="font-orbitron text-3xl font-bold text-white mt-1">ТВОРЧЕСКАЯ МАСТЕРСКАЯ</h2><p class="text-xs text-gray-400 mt-2">Код, сайты, дизайн, фото, видео и прототипы приложений. Файлы обрабатываются локально в браузере.</p></div>
+            <div class="flex flex-wrap gap-2 mb-5"><button onclick="showStudioTool('code')" data-studio-tab="code" class="studio-tab px-4 py-2 rounded-lg bg-[#00ffcc] text-black text-xs font-bold">КОД</button><button onclick="showStudioTool('site')" data-studio-tab="site" class="studio-tab px-4 py-2 rounded-lg bg-[#0d121d] border border-[#1a2436] text-white text-xs">САЙТ</button><button onclick="showStudioTool('design')" data-studio-tab="design" class="studio-tab px-4 py-2 rounded-lg bg-[#0d121d] border border-[#1a2436] text-white text-xs">ДИЗАЙН</button><button onclick="showStudioTool('photo')" data-studio-tab="photo" class="studio-tab px-4 py-2 rounded-lg bg-[#0d121d] border border-[#1a2436] text-white text-xs">ФОТО</button><button onclick="showStudioTool('video')" data-studio-tab="video" class="studio-tab px-4 py-2 rounded-lg bg-[#0d121d] border border-[#1a2436] text-white text-xs">ВИДЕО</button><button onclick="showStudioTool('app')" data-studio-tab="app" class="studio-tab px-4 py-2 rounded-lg bg-[#0d121d] border border-[#1a2436] text-white text-xs">ПРИЛОЖЕНИЕ</button><button onclick="showStudioTool('physics')" data-studio-tab="physics" class="studio-tab px-4 py-2 rounded-lg bg-[#0d121d] border border-[#1a2436] text-white text-xs">ФИЗИКА</button></div>
+            <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl p-4 sm:p-6">
+              <div id="studio-code" class="studio-panel grid gap-4"><p class="text-[10px] text-amber-300">Личное и общее хранилище синхронизируется только между вкладками этого браузера. Для удалённой команды нужен сервер.</p>
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3"><div><h3 class="text-white font-bold">Код-студия</h3><p class="text-[11px] text-gray-500">HTML, JavaScript и Python. Python запускается через Pyodide и требует подключения к интернету при первом запуске.</p></div><div class="flex flex-wrap gap-2"><select id="codeLanguage" onchange="changeCodeLanguage()" class="bg-[#06080d] border border-[#1a2436] rounded-lg p-2 text-white text-xs"><option value="html">HTML</option><option value="javascript">JavaScript</option><option value="python">Python</option></select><select id="workspaceScope" onchange="changeWorkspaceScope()" class="bg-[#06080d] border border-[#1a2436] rounded-lg p-2 text-white text-xs"><option value="personal">Мой проект</option><option value="shared">Общий проект</option></select><select id="workspaceProjectSelect" onchange="loadWorkspaceProject()" class="bg-[#06080d] border border-[#1a2436] rounded-lg p-2 text-white text-xs"></select><button onclick="createWorkspaceProject()" class="px-3 py-2 bg-[#1a2436] text-white rounded-lg text-xs">+ ПРОЕКТ</button></div></div>
+                <div class="grid lg:grid-cols-2 gap-4"><div><textarea id="codeEditor" spellcheck="false" class="w-full h-72 bg-[#06080d] border border-[#1a2436] rounded-lg p-4 text-emerald-300 text-xs font-mono" aria-label="Редактор кода"></textarea><div class="flex flex-wrap gap-2 mt-3"><button onclick="runCode()" class="px-4 py-2 bg-[#00ffcc] text-black rounded text-xs font-bold">ЗАПУСТИТЬ</button><button onclick="saveWorkspaceProject()" class="px-4 py-2 bg-[#1a2436] text-white rounded text-xs">СОХРАНИТЬ ПРОЕКТ</button><button onclick="downloadCode()" class="px-4 py-2 bg-[#1a2436] text-white rounded text-xs">СКАЧАТЬ ФАЙЛ</button></div><pre id="codeOutput" class="mt-3 h-24 overflow-auto whitespace-pre-wrap bg-black rounded-lg p-3 text-xs text-emerald-300">Готово. Выберите язык и нажмите «Запустить».</pre></div><div class="space-y-2"><div class="text-xs text-gray-400">Предпросмотр / результат</div><iframe id="codePreview" title="Предпросмотр кода" sandbox="allow-scripts" class="w-full h-[420px] bg-white rounded-lg"></iframe></div></div>
+              </div>
+              <div id="studio-site" class="studio-panel hidden grid lg:grid-cols-2 gap-4"><div class="space-y-3"><h3 class="text-white font-bold">Конструктор сайта</h3><label class="block text-xs text-gray-400">Шаблон<select id="sitePreset" onchange="applySitePreset()" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white"><option value="gaming">Игровое сообщество</option><option value="portfolio">Портфолио</option><option value="launch">Страница проекта</option></select></label><label class="block text-xs text-gray-400">Название<input id="siteName" value="Мой игровой проект" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white"></label><label class="block text-xs text-gray-400">Заголовок<input id="siteHeadline" value="Создавай. Играй. Побеждай." class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white"></label><label class="block text-xs text-gray-400">Описание<textarea id="siteDescription" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white">Место для вашего игрового сообщества.</textarea></label><label class="text-xs text-gray-400">Цвет<input id="siteColor" type="color" value="#00ffcc" class="block h-10"></label><button onclick="updateSitePreview()" class="px-4 py-2 bg-[#00ffcc] text-black rounded text-xs">ОБНОВИТЬ</button><button onclick="downloadSite()" class="px-4 py-2 bg-[#1a2436] text-white rounded text-xs">СКАЧАТЬ САЙТ</button></div><iframe id="sitePreview" title="Предпросмотр сайта" sandbox="allow-scripts" class="w-full h-[420px] bg-white rounded-lg"></iframe></div>
+              <div id="studio-design" class="studio-panel hidden grid lg:grid-cols-[300px_1fr] gap-5"><div class="space-y-4"><div><h3 class="text-white font-bold">Векторная дизайн-доска</h3><p class="text-[11px] text-gray-500">Добавляйте фигуры и текст, перетаскивайте элементы, экспортируйте SVG или PNG.</p></div><label class="block text-xs text-gray-400">Заголовок<input id="designTitle" value="Новая игровая вселенная" oninput="updateDesignPreview()" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white"></label><label class="block text-xs text-gray-400">Цвет фигуры<input id="designColor1" type="color" value="#00ffcc" oninput="updateDesignPreview()" class="block h-10"></label><div class="flex flex-wrap gap-2"><button onclick="addDesignShape('rect')" class="px-3 py-2 bg-[#1a2436] text-white rounded text-xs">+ ПРЯМОУГОЛЬНИК</button><button onclick="addDesignShape('circle')" class="px-3 py-2 bg-[#1a2436] text-white rounded text-xs">+ КРУГ</button><button onclick="addDesignShape('text')" class="px-3 py-2 bg-[#1a2436] text-white rounded text-xs">+ ТЕКСТ</button><button onclick="clearDesignCanvas()" class="px-3 py-2 bg-red-900/50 text-white rounded text-xs">ОЧИСТИТЬ</button></div><div class="flex flex-wrap gap-2"><button onclick="downloadDesignBoard()" class="px-3 py-2 bg-[#00ffcc] text-black rounded text-xs">ЭКСПОРТ SVG</button><button onclick="downloadDesignPNG()" class="px-3 py-2 bg-[#1a2436] text-white rounded text-xs">ЭКСПОРТ PNG</button></div></div><div class="overflow-auto rounded-xl border border-[#1a2436] bg-[#101827]"><svg id="designCanvas" viewBox="0 0 800 450" class="w-full min-w-[540px] min-h-[320px]" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="450" fill="#101827"/><text id="designPreviewTitle" x="40" y="70" fill="#00ffcc" font-size="30" font-family="Arial" font-weight="700" data-static-title="true">Новая игровая вселенная</text></svg></div></div>
+              <div id="studio-photo" class="studio-panel hidden grid lg:grid-cols-2 gap-5"><div class="space-y-4"><h3 class="text-white font-bold">Фото-редактор</h3><input id="photoFile" type="file" accept="image/*" onchange="loadPhoto(event)" class="text-xs text-gray-300"><label class="block text-xs text-gray-400">Яркость <input id="photoBrightness" type="range" min="50" max="160" value="100" oninput="applyPhotoFilter()" class="w-full"></label><label class="block text-xs text-gray-400">Контраст <input id="photoContrast" type="range" min="50" max="180" value="100" oninput="applyPhotoFilter()" class="w-full"></label><label class="block text-xs text-gray-400">Насыщенность <input id="photoSaturation" type="range" min="0" max="200" value="100" oninput="applyPhotoFilter()" class="w-full"></label><label class="block text-xs text-gray-400">Поворот <input id="photoRotation" type="range" min="-180" max="180" value="0" oninput="applyPhotoFilter()" class="w-full"></label><button onclick="downloadPhoto()" class="px-4 py-2 bg-[#00ffcc] text-black rounded text-xs">СКАЧАТЬ PNG</button><canvas id="photoCanvas" class="hidden"></canvas></div><div class="min-h-64 bg-[#06080d] rounded flex items-center justify-center overflow-auto p-3"><img id="photoPreview" alt="Обработанное фото" class="max-w-full max-h-[420px] hidden"><span id="photoPlaceholder" class="text-xs text-gray-500">Загрузите изображение</span></div></div>
+              <div id="studio-video" class="studio-panel hidden grid lg:grid-cols-2 gap-5"><div class="space-y-3"><h3 class="text-white font-bold">Монтаж видео</h3><p class="text-[11px] text-gray-500">Обрезка, скорость, цветовой фильтр, подпись и экспорт выбранного фрагмента. Для сложного многодорожечного монтажа нужен отдельный видеоредактор.</p><input id="videoFile" type="file" accept="video/*" onchange="loadVideo(event)" class="text-xs text-gray-300"><div id="videoPreviewFrame" class="relative"><video id="videoPreview" controls ontimeupdate="updateVideoTimeline()" class="w-full max-h-[300px] bg-black rounded"></video><div id="videoCaptionPreview" class="absolute bottom-5 inset-x-2 text-center text-white font-bold text-xl drop-shadow-lg pointer-events-none"></div></div><div class="relative h-12 bg-[#06080d] border border-[#1a2436] rounded-lg overflow-hidden"><div id="videoTimelineFill" class="absolute top-0 bottom-0 bg-[#00ffcc]/20 border-x-2 border-[#00ffcc]" style="left:0;width:100%"></div><div class="absolute inset-x-2 bottom-1 text-[9px] text-gray-500">ВИДЕОДОРОЖКА · начало/конец фрагмента</div></div><div class="grid sm:grid-cols-2 gap-2"><label class="block text-xs text-gray-400">Начало (сек.) <input id="videoStart" type="number" min="0" step="0.1" value="0" oninput="updateVideoTimeline()" class="block w-full bg-[#06080d] p-2 text-white"></label><label class="block text-xs text-gray-400">Конец (сек.) <input id="videoEnd" type="number" min="0" step="0.1" value="10" oninput="updateVideoTimeline()" class="block w-full bg-[#06080d] p-2 text-white"></label></div><label class="block text-xs text-gray-400">Скорость<select id="videoSpeed" class="block w-full bg-[#06080d] p-2 text-white"><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><label class="block text-xs text-gray-400">Цветовой фильтр<select id="videoEffect" onchange="updateVideoLook()" class="block w-full bg-[#06080d] p-2 text-white"><option value="none">Обычный</option><option value="cinema">Кино</option><option value="mono">Чёрно-белый</option><option value="warm">Тёплый</option></select></label><label class="block text-xs text-gray-400">Подпись на видео<input id="videoCaption" maxlength="80" placeholder="Введите текст титра" oninput="updateVideoLook()" class="block w-full bg-[#06080d] p-2 text-white"></label><button onclick="exportVideoClip()" class="px-4 py-2 bg-[#00ffcc] text-black rounded text-xs">ЭКСПОРТИРОВАТЬ ФРАГМЕНТ</button><canvas id="videoRenderCanvas" class="hidden"></canvas><p id="videoStatus" class="text-[10px] text-gray-400"></p></div><div class="bg-[#06080d] border border-[#1a2436] rounded-xl p-3"><p class="text-[10px] text-gray-500 mb-2">ПРЕДПРОСМОТР МОНТАЖА</p><p class="text-[10px] text-gray-500">Предпросмотр будет показан в видеоплеере.</p><p class="text-[10px] text-gray-500 mt-3">Результат скачивается как WebM. Поддержка зависит от браузера.</p></div></div>
+              <div id="studio-physics" class="studio-panel hidden grid lg:grid-cols-[260px_1fr] gap-5"><div class="space-y-4"><h3 class="text-white font-bold">Физическая песочница</h3><p class="text-xs text-gray-400">Добавляйте шарики щелчком по полю, меняйте гравитацию и упругость.</p><label class="block text-xs text-gray-400">Гравитация <input id="physicsGravity" type="range" min="0" max="1.5" step="0.1" value="0.5" class="w-full"></label><label class="block text-xs text-gray-400">Упругость <input id="physicsBounce" type="range" min="0.4" max="1" step="0.05" value="0.85" class="w-full"></label><button onclick="resetPhysicsPlayground()" class="px-4 py-2 bg-[#1a2436] text-white rounded text-xs">СБРОСИТЬ</button></div><canvas id="physicsPlayground" class="w-full h-[360px] bg-[#06080d] border border-[#1a2436] rounded-lg cursor-crosshair"></canvas></div>
+              <div id="studio-app" class="studio-panel hidden grid lg:grid-cols-2 gap-5"><div class="space-y-3"><h3 class="text-white font-bold">Конструктор режима приложения</h3><label class="block text-xs text-gray-400">Тип приложения<select id="appType" onchange="updateAppPreview()" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white"><option value="community">Игровое сообщество</option><option value="tracker">Трекер задач</option><option value="companion">Игровой помощник</option><option value="portfolio">Портфолио</option></select></label><label class="block text-xs text-gray-400">Название<input id="appName" value="Моё приложение" oninput="updateAppPreview()" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white"></label><label class="block text-xs text-gray-400">Назначение<textarea id="appPurpose" oninput="updateAppPreview()" class="mt-1 w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white">Помогает игрокам находить команду и делиться идеями.</textarea></label><button onclick="downloadAppStarter()" class="px-4 py-2 bg-[#00ffcc] text-black rounded text-xs">СОЗДАТЬ И СКАЧАТЬ</button><p class="text-[10px] text-gray-500">Публикация и серверные функции потребуют отдельной разработки.</p></div><div class="bg-[#06080d] rounded-xl p-6"><span class="text-[10px] text-[#00ffcc]">APP PREVIEW</span><h3 id="appPreviewName" class="text-2xl text-white mt-4"></h3><p id="appPreviewPurpose" class="text-sm text-gray-400 mt-3"></p></div></div>
+            </div></div></section>
+
+        <section id="team" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                <div>
+                    <span class="text-[#00ffcc] text-xs font-mono">// SENIOR COUNCIL</span>
+                    <h2 class="font-orbitron text-2xl sm:text-4xl font-bold text-white mt-1">ВЫСШИЙ СОВЕТ МУРСОКО</h2>
+                    <p class="text-xs text-gray-400 mt-1">Пять членов основателей с нерасширяемыми административными правами.</p>
+                </div>
+
+                <div class="bg-[#0d121d] px-4 py-2 rounded-lg border border-[#1a2436] text-xs font-mono text-gray-400 flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#00ffcc]"></i>
+                    <span>СТАТУС СОВЕТА: <code class="text-emerald-400">5 ОСНОВАТЕЛЕЙ АКТИВНЫ</code></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="membersGrid">
+                <!-- Dynamic Council rendering -->
+            </div>
+        </section>
+
+        <section id="adminPanel" class="py-12 bg-[#0d121d] border-t border-[#1a2436] hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1a2436] pb-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-emerald-400 text-xs font-mono">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                            <span>АДМИНИСТРАТИВНЫЙ ЦЕНТР ВЫСШЕГО СОВЕТА</span>
+                        </div>
+                        <h2 class="font-orbitron text-2xl font-bold text-white mt-1">УПРАВЛЕНИЕ АНКЕТАМИ И УЧАСТНИКАМИ</h2>
+                        <p class="text-xs text-gray-400">Только 5 членов основателей могут утверждать анкеты рекрутов и выдавать роли.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <span id="pendingBadge" class="px-3 py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded text-xs font-mono font-bold">
+                            0 АНКЕТ НА РАССМОТРЕНИИ
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-xs font-mono text-gray-400 uppercase tracking-wider">ПОСТУПИВШИЕ АНКЕТЫ ДОВЕРИЯ:</h3>
+                    <div id="applicationsList" class="space-y-4">
+                        <!-- Dynamic applications injected here -->
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-[#1a2436] space-y-4">
+                    <h3 class="text-xs font-mono text-gray-400 uppercase tracking-wider">ОДОБРЕННЫЕ УЧАСТНИКИ С ПРЕФИКСОМ mursoko_:</h3>
+                    <div id="approvedUsersList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 font-mono text-xs">
+                        <!-- Dynamic active users -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="terminal" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-6">
+                <span class="text-[#00ffcc] text-xs font-mono">// INTERACTIVE CONSOLE</span>
+                <h2 class="font-orbitron text-2xl sm:text-3xl font-bold text-white">ТЕРМИНАЛ СЕКТОРА</h2>
+            </div>
+
+            <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl p-4 font-mono text-xs glow-accent">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1a2436] pb-2 text-gray-500 mb-3"><span class="flex items-center gap-2 text-emerald-400"><i data-lucide="terminal" class="w-4 h-4"></i> MURSOKO WORKSPACE TERMINAL <small class="text-[9px] text-gray-500">(без команд ОС)</small></span><span id="liveClock">00:00:00 UTC</span></div>
+                <div class="flex flex-wrap gap-2 mb-3"><button id="terminalPersonalTab" onclick="switchTerminalMode('personal')" class="px-3 py-2 rounded bg-[#00ffcc] text-black text-xs font-bold">ЛИЧНЫЙ</button><button id="terminalGroupTab" onclick="switchTerminalMode('group')" class="px-3 py-2 rounded bg-[#1a2436] text-white text-xs">ОБЩИЙ ДЛЯ УЧАСТНИКОВ</button><select id="terminalRoomSelect" onchange="selectTerminalRoom(this.value)" class="hidden bg-[#06080d] border border-[#1a2436] rounded p-2 text-white text-xs"></select><button id="createTerminalRoomBtn" onclick="createTerminalRoom()" class="hidden px-3 py-2 rounded bg-[#1a2436] text-white text-xs">+ СОЗДАТЬ КОМНАТУ</button></div>
+
+                <div id="terminalLog" class="space-y-1.5 h-48 overflow-y-auto mb-3 text-gray-300 pr-2">
+                    <p class="text-gray-500">> MURSOKO workspace console ready. Type <span class="text-[#00ffcc]">help</span>.</p>
+                </div>
+
+                <form onsubmit="handleTerminalSubmit(event)" class="flex items-center gap-2 border-t border-[#1a2436] pt-2">
+                    <span class="text-[#00ffcc] font-bold">></span>
+                    <input type="text" id="termInput" placeholder="help · status · projects · whoami · login · apply" class="flex-grow bg-transparent border-none text-white focus:outline-none font-mono">
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div id="welcomeModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+        <div class="bg-[#0d121d] border border-[#00ffcc]/50 rounded-2xl max-w-2xl w-full p-6 sm:p-8 relative glow-accent my-8">
+            <button onclick="dismissWelcomeGuide()" aria-label="Закрыть ознакомление" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <span class="text-[#00ffcc] text-xs font-mono">// НОВЫЙ ПОСЕТИТЕЛЬ</span>
+            <h2 id="welcomeTitle" class="font-orbitron text-2xl sm:text-3xl font-bold text-white mt-2">Добро пожаловать в МУРСОКО</h2>
+            <p class="text-sm text-gray-400 mt-3">Перед началом — короткое знакомство. Просмотрите инструменты, отправьте анкету для участия и дождитесь ответа основателей.</p>
+            <div class="grid sm:grid-cols-3 gap-3 mt-6">
+                <div class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4"><i data-lucide="compass" class="w-5 h-5 text-[#00ffcc]"></i><h3 class="text-white text-sm font-bold mt-3">Ознакомьтесь</h3><p class="text-[11px] text-gray-400 mt-1">Инструкция по разделам и регистрации находится на главной странице.</p></div>
+                <div class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4"><i data-lucide="code-2" class="w-5 h-5 text-[#00ffcc]"></i><h3 class="text-white text-sm font-bold mt-3">Попробуйте мастерскую</h3><p class="text-[11px] text-gray-400 mt-1">Создавайте страницы, макеты и прототипы прямо в браузере.</p></div>
+                <div class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4"><i data-lucide="clipboard-check" class="w-5 h-5 text-[#00ffcc]"></i><h3 class="text-white text-sm font-bold mt-3">Подайте анкету</h3><p class="text-[11px] text-gray-400 mt-1">После одобрения получите данные для входа и доступ к чатам.</p></div>
+            </div>
+            <div class="flex flex-col sm:flex-row flex-wrap gap-3 mt-7">
+                <button onclick="startRegistrationFromWelcome()" class="px-5 py-3 bg-[#00ffcc] text-black rounded-lg font-orbitron font-bold text-xs">ОЗНАКОМИЛСЯ · ПОДАТЬ АНКЕТУ</button>
+                <button onclick="startExploringFromWelcome()" class="px-5 py-3 bg-[#1a2436] text-white rounded-lg font-orbitron font-bold text-xs">СНАЧАЛА ПОСМОТРЕТЬ САЙТ</button>
+                <button onclick="startLoginFromWelcome()" class="px-5 py-3 border border-[#1a2436] text-gray-300 rounded-lg text-xs">УЖЕ ЕСТЬ АККАУНТ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl max-w-xl w-full p-6 relative glow-accent my-8">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Modal Tab Switcher -->
+            <div class="flex border-b border-[#1a2436] mb-6">
+                <button id="tabBtnLogin" onclick="switchModalTab('login')" class="flex-1 py-3 text-center font-orbitron font-bold text-xs border-b-2 border-[#00ffcc] text-[#00ffcc] flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> ВХОД В АККАУНТ
+                </button>
+                <button id="tabBtnRegister" onclick="switchModalTab('register')" class="flex-1 py-3 text-center font-orbitron font-bold text-xs border-b-2 border-transparent text-gray-400 hover:text-white flex items-center justify-center gap-2">
+                    <i data-lucide="shield-question" class="w-4 h-4"></i> АНКЕТА ДОВЕРИЯ (РЕГИСТРАЦИЯ)
+                </button>
+            </div>
+
+            <!-- LOGIN TAB CONTENT -->
+            <div id="loginTabContent" class="space-y-4">
+                <div class="mb-2">
+                    <h3 class="font-orbitron text-lg font-bold text-white">АВТОРИЗАЦИЯ УЧАСТНИКА</h3>
+                    <p class="text-xs text-gray-400">Введите ваш индивидуальный логин или системный идентификатор.</p>
+                </div>
+
+                <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block text-gray-400 mb-1 font-mono">ЛОГИН ИЛИ ИДЕНТИФИКАТОР:</label>
+                        <input type="text" id="loginUser" required class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2.5 text-white focus:outline-none focus:border-[#00ffcc] font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 mb-1 font-mono">ПАРОЛЬ:</label>
+                        <input type="password" id="loginPass" required class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2.5 text-white focus:outline-none focus:border-[#00ffcc] font-mono">
+                    </div>
+
+                    <div class="bg-[#06080d] p-3 rounded border border-[#1a2436] text-[11px] text-gray-400 space-y-1 font-mono">
+                        <span class="text-[#00ffcc] font-bold block">ПРОТОКОЛ ВХОДА:</span>
+                        <p>• 5 основателей используют выданные системные коды и мастер-пароль.</p>
+                        <p>• Одобренные участники используют логин <code class="text-blue-400">mursoko_[ник]</code>.</p>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-[#00ffcc] hover:bg-cyan-300 text-black font-orbitron font-bold rounded transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> ВОЙТИ В СИСТЕМУ
+                    </button>
+                </form>
+            </div>
+
+            <!-- QUESTIONNAIRE / REGISTRATION TAB CONTENT -->
+            <div id="registerTabContent" class="space-y-4 hidden">
+                <div class="mb-2">
+                    <h3 class="font-orbitron text-lg font-bold text-white">АНКЕТА ПРОВЕРКИ ДОВЕРИЯ РЕКРУТА</h3>
+                    <p class="text-xs text-gray-400">Анкета отправляется исключительно пяти основателям МУРСОКО.</p>
+                </div>
+
+                <div class="bg-[#06080d] border border-[#00ffcc]/20 rounded-lg p-3 text-[11px] text-gray-300 space-y-1 mb-3"><p><strong class="text-[#00ffcc]">1.</strong> Заполните имя, контакт и направление.</p><p><strong class="text-[#00ffcc]">2.</strong> Ответьте на вопросы анкеты — она попадёт пяти основателям.</p><p><strong class="text-[#00ffcc]">3.</strong> Дождитесь решения; после одобрения вам выдадут логин и пароль для входа.</p></div>
+                <form onsubmit="handleTrustQuestionnaireSubmit(event)" class="space-y-3 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[#00ffcc] font-mono font-bold mb-1">ФИО / ПОЗЫВНОЙ:</label>
+                            <input type="text" id="regCandidateName" required class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                        </div>
+                        <div>
+                            <label class="block text-[#00ffcc] font-mono font-bold mb-1">КОНТАКТ (TELEGRAM / DISCORD):</label>
+                            <input type="text" id="regContact" required class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 mb-1 font-mono">НАПРАВЛЕНИЕ ДЕЯТЕЛЬНОСТИ:</label>
+                        <select id="regDirection" class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                            <option value="Pentest & Security Audit">Кибербезопасность / Пентест / CTF</option>
+                            <option value="Competitive Gaming (CS2 / Val / Dota)">Соревновательный Гейминг</option>
+                            <option value="Hardware, Soldering & Modding">Разгон / Железо / Пайка / Микроконтроллеры</option>
+                            <option value="Network Infrastructure & Routing">Сетевая Инфраструктура / Linux Admin</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 mb-1 font-mono">ВОПРОС 1: Опыт работы с конфиденциальной информацией и соблюдение NDA?</label>
+                        <textarea id="regNdaExperience" rows="2" required class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 mb-1 font-mono">ВОПРОС 2: Ваши цели в МУРСОКО и почему основатели должны вам доверять?</label>
+                        <textarea id="regTrustReason" rows="2" required class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 mb-1 font-mono">ВОПРОС 3: Готовы ли вы пройти практическую проверку навыков?</label>
+                        <select id="regReadyTest" class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                            <option value="Да, готов пройти проверку в любое время">Да, готов в любое время</option>
+                            <option value="Готов после согласования времени">Готов по согласованию</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-1">
+                        <input type="checkbox" id="regNoMalicious" required class="rounded bg-[#06080d] border-[#1a2436] text-[#00ffcc] focus:ring-0">
+                        <label for="regNoMalicious" class="text-[11px] text-gray-400">Подтверждаю достоверность сведений и отсутствие вредоносных намерений.</label>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-[#3b82f6] hover:bg-blue-600 text-white font-orbitron font-bold rounded transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> ОТПРАВИТЬ АНКЕТУ ОСНОВАТЕЛЯМ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Chat Creation (Restricted ONLY to 5 Core Founders) -->
+    <div id="chatManageModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#0d121d] border border-[#8a2be2]/60 rounded-xl max-w-lg w-full p-6 relative glow-purple space-y-4">
+            <button onclick="toggleChatManageModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="border-b border-[#1a2436] pb-3">
+                <h3 class="font-orbitron font-bold text-white text-lg flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-[#8a2be2]"></i> СОЗДАНИЕ И НАСТРОЙКА ЧАТА
+                </h3>
+                <p class="text-xs text-gray-400">Эксклюзивный инструмент 5 основателей МУРСОКО.</p>
+            </div>
+
+            <form onsubmit="handleCreateChannelSubmit(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-[#00ffcc] font-mono font-bold mb-1">НАЗВАНИЕ КАНАЛА (#):</label>
+                    <input type="text" id="newChanName" required placeholder="cyber-recon" class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                </div>
+
+                <div>
+                    <label class="block text-gray-400 font-mono mb-1">ОПИСАНИЕ ЧАТА:</label>
+                    <input type="text" id="newChanDesc" required placeholder="Обсуждение реверс-инжиниринга и CTF" class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                </div>
+
+                <div>
+                    <label class="block text-gray-400 font-mono mb-1">ТРЕБУЕМЫЙ УРОВЕНЬ ДОСТУПА:</label>
+                    <select id="newChanLevel" class="w-full bg-[#06080d] border border-[#1a2436] rounded p-2 text-white focus:outline-none focus:border-[#00ffcc]">
+                        <option value="junior">Младший состав (Доступен всем одобренным)</option>
+                        <option value="mid">Средний состав (Доступен офицерам и старше)</option>
+                        <option value="senior">Высший совет (Только 5 основателей)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-[#8a2be2] hover:bg-purple-600 text-white font-orbitron font-bold rounded transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> СОЗДАТЬ ИЛИ ОБНОВИТЬ ЧАТ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Member Profile Modal -->
+    <div id="memberModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl max-w-lg w-full p-6 relative glow-accent">
+            <button onclick="closeMemberModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="memberModalContent"></div>
+        </div>
+    </div>
+
+    <footer class="border-t border-[#1a2436] py-8 bg-[#06080d] text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                &copy; 2026 МУРСОКО // MURSOKO NETWORK. Все права защищены.
+            </div>
+            <div class="flex gap-6 font-mono">
+                <span>ОСНОВАТЕЛИ: 5 УЧАСТНИКОВ</span>
+                <span>CHATS: ROLE PROTECTED</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // System login mapping for the 5 core founders
+        const coreCouncil = {
+            'mur11': 'mursokoking',
+            'mursokoking': 'mursokoking',
+            'mur12': 'mursiko',
+            'mursiko': 'mursiko',
+            'mur13': 'mursokostar',
+            'mursokostar': 'mursokostar',
+            'mur14': 'mursokomajor',
+            'mursokomajor': 'mursokomajor',
+            'mur15': 'mursokomind',
+            'mursokomind': 'mursokomind'
+        };
+
+        const CORE_PASSWORD = 'romur123';
+
+        const teamMembers = [
+            {
+                id: "mur11",
+                nickname: "mursokoking",
+                role: "Leader & Security Operations",
+                specialization: "Пентестинг, Управление доступом, BGP",
+                hardware: "Custom Split Mechanical, 2x 27' 240Hz, Arch Linux",
+                esports: "CS2 Tactical IGL / Cyber Lead",
+                ping: "9 ms",
+                avatar: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80",
+                bio: "Руководитель высшего совета МУРСОКО. Обладает вето при принятии решений и утверждении аккаунтов."
+            },
+            {
+                id: "mur12",
+                nickname: "mursiko",
+                role: "Hardware & Microelectronics",
+                specialization: "Реверс-инжиниринг бинарников, кастомные прошивки",
+                hardware: "Oscilloscope, STM32 Microcontrollers, Bench Rig",
+                esports: "Sim-Racing & Hardcore Shooters",
+                ping: "14 ms",
+                avatar: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80",
+                bio: "Член совета по аппаратному обеспечению и безопасности микроконтроллеров."
+            },
+            {
+                id: "mur13",
+                nickname: "mursokostar",
+                role: "Security Analyst & Esports Lead",
+                specialization: "OSINT разведка, тактический разбор матчей",
+                hardware: "Wooting 60HE, OLED 360Hz, Custom Waterloop",
+                esports: "Valorant Radiant / Analyst",
+                ping: "11 ms",
+                avatar: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80",
+                bio: "Член совета. Курирует тактический анализ и проведение собеседований рекрутов."
+            },
+            {
+                id: "mur14",
+                nickname: "mursokomajor",
+                role: "Exploit Dev & Low-Latency Physics",
+                specialization: "C++ / Rust, Оптимизация задержки кадров и ядер OS",
+                hardware: "Benchtable Rig, Intel Core i9, Custom Kernel",
+                esports: "Apex Legends / Fast-Paced FPS",
+                ping: "12 ms",
+                avatar: "https://images.unsplash.com/photo-1562813733-b31f71025d54?w=600&q=80",
+                bio: "Член совета. Специалист по высокопроизводительным алгоритмам и оптимизации сетевой физики."
+            },
+            {
+                id: "mur15",
+                nickname: "mursokomind",
+                role: "Network Architect & Cloud Defense",
+                specialization: "Защита от DDoS, UDP туннели, Мониторинг трафика",
+                hardware: "Rack Server System, Multi-Monitor Array",
+                esports: "Dota 2 (7k MMR) / Strategy",
+                ping: "8 ms",
+                avatar: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80",
+                bio: "Член совета. Архитектор защищенных каналов связи и систем шифрования."
+            }
+        ];
+
+        // Initial 3 channels state
+        let channels = JSON.parse(localStorage.getItem('mursoko_channels_v2') || 'null') || [
+            { id: "junior-ops", name: "#junior-ops", desc: "Чат младшего состава и рекрутов", level: "junior" },
+            { id: "tactical-officers", name: "#tactical-officers", desc: "Канал проверенных операторов и офицеров", level: "mid" },
+            { id: "council-core", name: "#council-core", desc: "Закрытый канал 5 основателей [LEVEL 5]", level: "senior" }
+        ];
+
+        // Chat message history store
+        let defaultChatMessages = {
+            "junior-ops": [
+                { user: "SYSTEM", text: "Добро пожаловать в общий чат младшего состава МУРСОКО.", time: "12:00", rank: "SYS" },
+                { user: "mursokoking", text: "Рекруты, приветствуем в системе. Соблюдайте регламент безопасности.", time: "12:05", rank: "COUNCIL" },
+                { user: "mursiko", text: "Вход в чаты открыт только подтвержденным профилям.", time: "12:10", rank: "COUNCIL" }
+            ],
+            "tactical-officers": [
+                { user: "mursokomajor", text: "Обновлена сетевая физика и маршрутизация трафика.", time: "11:30", rank: "COUNCIL" },
+                { user: "mursokostar", text: "Таблица проверок анкет актуализирована.", time: "11:45", rank: "COUNCIL" }
+            ],
+            "council-core": [
+                { user: "mursokoking", text: "Сессия Высшего Совета открыта. Все 5 основателей имеют доступ.", time: "10:00", rank: "COUNCIL" },
+                { user: "mursokomind", text: "Заявки рекрутов находятся под нашим прямым контролем.", time: "10:15", rank: "COUNCIL" }
+            ]
+        };
+
+        let chatStore = JSON.parse(localStorage.getItem('mursoko_chat_store_v2') || 'null') || defaultChatMessages;
+        let currentActiveChannel = "junior-ops";
+        let currentChatMode = 'channel';
+        let activeDirectKey = '';
+        let directMessageStore = JSON.parse(localStorage.getItem('mursoko_direct_messages_v1') || '{}');
+
+        const specialRoleLabels = {participant:'Участник',programmer:'Программист',designer:'Дизайнер',video_editor:'Видеомонтажёр',site_builder:'Создатель сайтов',app_developer:'Разработчик приложений',tester:'Тестировщик'};
+        let applications = JSON.parse(localStorage.getItem('mursoko_trust_apps') || '[]');
+        let approvedUsers = JSON.parse(localStorage.getItem('mursoko_approved_accounts') || '{}');
+
+        function renderTeam() {
+            const grid = document.getElementById('membersGrid');
+            grid.innerHTML = teamMembers.map(m => `
+                <div class="bg-[#0d121d] border border-[#1a2436] rounded-xl overflow-hidden hover:border-[#00ffcc] transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="relative h-48 overflow-hidden bg-[#06080d]">
+                            <img src="${m.avatar}" alt="${m.nickname}" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#0d121d] via-transparent to-transparent"></div>
+                            
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#06080d]/90 text-[#00ffcc] border border-[#00ffcc]/30">ОСНОВАТЕЛЬ</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-3 font-mono text-xs text-gray-400">
+                                PING: <span class="text-[#00ffcc] font-bold">${m.ping}</span>
+                            </div>
+                        </div>
+
+                        <div class="p-5">
+                            <div class="mb-3">
+                                <h3 class="font-orbitron font-bold text-white text-lg group-hover:text-[#00ffcc] transition-colors">${m.nickname}</h3>
+                                <p class="text-xs text-[#00ffcc] font-mono mt-0.5">${m.role}</p>
+                            </div>
+
+                            <div class="space-y-2 text-xs text-gray-400 border-t border-[#1a2436] pt-3">
+                                <div>
+                                    <span class="text-gray-500 block text-[10px]">СПЕЦИАЛИЗАЦИЯ:</span>
+                                    <span class="text-gray-300">${m.specialization}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 block text-[10px]">ДИСЦИПЛИНА:</span>
+                                    <span class="text-gray-300">${m.esports}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5 pt-0">
+                        <button onclick="openMemberModal('${m.id}')" class="w-full py-2 bg-[#1a2436] hover:bg-[#00ffcc] hover:text-black text-white text-xs font-orbitron font-bold rounded transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="cpu" class="w-4 h-4"></i> ПРОФИЛЬ ОСНОВАТЕЛЯ
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Check if user has clearance for a specific channel level
+        function userHasAccessToChannel(chLevel) {
+            const currentUser = localStorage.getItem('mursoko_logged');
+            const isAdmin = localStorage.getItem('mursoko_is_admin') === 'true';
+
+            if (!currentUser) return false;
+            if (isAdmin) return true; // The 5 Core Founders have access to ALL channels!
+
+            // Non-admin approved users
+            const userRole = localStorage.getItem('mursoko_user_role') || 'junior';
+            if (chLevel === 'junior') return true;
+            if (chLevel === 'mid' && (userRole === 'mid' || userRole === 'senior')) return true;
+            if (chLevel === 'senior') return false; // Senior channels reserved for 5 founders!
+
+            return false;
+        }
+
+        // Render available channels in chat sidebar
+        function renderChannels() {
+            const container = document.getElementById('channelList');
+            const currentUser = localStorage.getItem('mursoko_logged');
+            const isAdmin = localStorage.getItem('mursoko_is_admin') === 'true';
+
+            if (!currentUser) return;
+
+            // Filter channels user is allowed to see or interact with
+            const accessibleChannels = channels.filter(ch => userHasAccessToChannel(ch.level));
+
+            // If current active channel is no longer accessible, switch to first available
+            if (accessibleChannels.length > 0 && !accessibleChannels.some(c => c.id === currentActiveChannel)) {
+                currentActiveChannel = accessibleChannels[0].id;
+            }
+
+            container.innerHTML = accessibleChannels.map(ch => {
+                const isActive = ch.id === currentActiveChannel;
+                let levelBadge = `<span class="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded">МЛАДШИЙ</span>`;
+                if (ch.level === 'mid') levelBadge = `<span class="text-[9px] px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded">ОФИЦЕРСКИЙ</span>`;
+                if (ch.level === 'senior') levelBadge = `<span class="text-[9px] px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded">ОСНОВАТЕЛИ</span>`;
+
+                return `
+                    <button onclick="selectChannel('${ch.id}')" class="w-full p-2.5 rounded-lg border text-left transition-all flex items-center justify-between ${isActive ? 'bg-[#1a2436] border-[#00ffcc] text-white' : 'bg-[#0d121d] border-[#1a2436] text-gray-400 hover:text-white hover:border-gray-700'}">
+                        <div>
+                            <span class="font-orbitron font-bold text-xs block ${isActive ? 'text-[#00ffcc]' : 'text-white'}">${ch.name}</span>
+                            <span class="text-[10px] text-gray-500 block truncate max-w-[180px]">${ch.desc}</span>
+                        </div>
+                        ${levelBadge}
+                    </button>
+                `;
+            }).join('');
+
+            const sidebarFooter = document.getElementById('chatSidebarFooter');
+            if (isAdmin) {
+                sidebarFooter.innerHTML = `<p class="text-[#00ffcc] font-bold">• ОСНОВАТЕЛЬ: Доступ ко всем ${channels.length} чатам разрешён.</p>`;
+            } else {
+                sidebarFooter.innerHTML = `<p class="text-emerald-400">• Доступно чатов: ${accessibleChannels.length} из ${channels.length}</p>`;
+            }
+            renderDmControls();
+        }
+
+        function selectChannel(chanId) {
+            const channel = channels.find(c => c.id === chanId);
+            if (!channel) return;
+
+            if (!userHasAccessToChannel(channel.level)) {
+                alert('[ДОСТУП ЗАБЛОКИРОВАН]\nУ вас нет требуемого уровня допуска для этого чата.');
+                return;
+            }
+
+            currentChatMode = 'channel';
+            document.getElementById('chatInput').disabled = false;
+            currentActiveChannel = chanId;
+            document.getElementById('activeChannelTitle').innerText = channel.name;
+            document.getElementById('activeChannelDesc').innerText = channel.desc;
+            
+            const badge = document.getElementById('activeChannelBadge');
+            if (channel.level === 'senior') {
+                badge.innerText = 'ВЫСШИЙ СОВЕТ ОСНОВАТЕЛЕЙ';
+                badge.className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-purple-500/10 text-purple-400 border border-purple-500/20';
+            } else if (channel.level === 'mid') {
+                badge.innerText = 'ОФИЦЕРСКИЙ ЧАТ';
+                badge.className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20';
+            } else {
+                badge.innerText = 'ОБЩИЙ ЧАТ МЛАДШЕГО СОСТАВА';
+                badge.className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+            }
+
+            renderChannels();
+            renderChatMessages();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
+        function allChatUsers() {
+            const users = [...teamMembers.map(m => m.nickname), ...Object.keys(approvedUsers)];
+            return [...new Set(users)].filter(name => name !== localStorage.getItem('mursoko_logged')).sort();
+        }
+
+        function renderDmControls() {
+            const select = document.getElementById('dmRecipientSelect');
+            if (!select) return;
+            const previous = select.value;
+            const users = allChatUsers();
+            select.innerHTML = '<option value="">Выберите участника…</option>' + users.map(name => '<option value="'+escapeHtml(name)+'">'+escapeHtml(name)+'</option>').join('');
+            if (users.includes(previous)) select.value = previous;
+            document.getElementById('broadcastButton').classList.toggle('hidden', localStorage.getItem('mursoko_is_admin') !== 'true');
+            renderDirectConversationList();
+        }
+
+        function renderDirectConversationList() {
+            const list = document.getElementById('directConversationList');
+            if (!list) return;
+            const me = localStorage.getItem('mursoko_logged');
+            const keys = Object.keys(directMessageStore).filter(key => key !== 'broadcast' && key.split('|').includes(me));
+            list.innerHTML = keys.map(key => {
+                const other = key.split('|').find(name => name !== me) || 'Участник';
+                return '<button onclick="openDirectConversation(\''+escapeHtml(key)+'\')" class="w-full text-left px-2 py-1.5 rounded text-[10px] text-gray-300 hover:bg-[#1a2436]">✉ '+escapeHtml(other)+'</button>';
+            }).join('') || '<p class="text-[10px] text-gray-600">Диалогов пока нет</p>';
+        }
+
+        function directKeyFor(a, b) { return [a, b].sort().join('|'); }
+
+        function startDirectMessage() {
+            const recipient = document.getElementById('dmRecipientSelect').value;
+            const me = localStorage.getItem('mursoko_logged');
+            if (!me) return alert('Войдите в аккаунт, чтобы написать участнику.');
+            if (!recipient) return alert('Сначала выберите адресата.');
+            activeDirectKey = directKeyFor(me, recipient);
+            currentChatMode = 'direct';
+            document.getElementById('chatInput').disabled = false;
+            document.getElementById('activeChannelTitle').innerText = recipient;
+            document.getElementById('activeChannelDesc').innerText = 'Личная переписка · только вы и адресат';
+            document.getElementById('activeChannelBadge').innerText = 'ЛИЧНЫЙ ДИАЛОГ';
+            document.getElementById('activeChannelBadge').className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20';
+            renderChatMessages();
+        }
+
+        function openDirectConversation(key) {
+            const me = localStorage.getItem('mursoko_logged');
+            if (!me || !key.split('|').includes(me)) return;
+            activeDirectKey = key;
+            currentChatMode = 'direct';
+            document.getElementById('chatInput').disabled = false;
+            const recipient = key.split('|').find(name => name !== me) || 'Участник';
+            document.getElementById('activeChannelTitle').innerText = recipient;
+            document.getElementById('activeChannelDesc').innerText = 'Личная переписка · только участники диалога';
+            document.getElementById('activeChannelBadge').innerText = 'ЛИЧНЫЙ ДИАЛОГ';
+            document.getElementById('activeChannelBadge').className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20';
+            renderChatMessages();
+        }
+
+        function viewBroadcast() {
+            currentChatMode = 'announcements'; activeDirectKey = 'broadcast';
+            document.getElementById('chatInput').disabled = true;
+            document.getElementById('activeChannelTitle').innerText = 'Объявления всем';
+            document.getElementById('activeChannelDesc').innerText = 'Сообщения пяти основателей для участников';
+            document.getElementById('activeChannelBadge').innerText = 'ОБЪЯВЛЕНИЯ';
+            document.getElementById('activeChannelBadge').className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20';
+            renderChatMessages();
+        }
+
+        function startBroadcast() {
+            if (localStorage.getItem('mursoko_is_admin') !== 'true') return alert('Рассылать сообщения всем могут только пять основателей.');
+            currentChatMode = 'broadcast'; activeDirectKey = 'broadcast';
+            document.getElementById('chatInput').disabled = false;
+            document.getElementById('activeChannelTitle').innerText = 'Объявления всем';
+            document.getElementById('activeChannelDesc').innerText = 'Сообщение будет доступно всем участникам';
+            document.getElementById('activeChannelBadge').innerText = 'РАССЫЛКА ОСНОВАТЕЛЯ';
+            document.getElementById('activeChannelBadge').className = 'px-2.5 py-1 rounded text-[10px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20';
+            renderChatMessages();
+        }
+
+        function renderChatMessages() {
+            const box = document.getElementById('chatMessagesBox');
+            const msgs = currentChatMode === 'channel' ? (chatStore[currentActiveChannel] || []) : (directMessageStore[activeDirectKey] || []);
+            if (!msgs.length) { box.innerHTML = '<div class="text-center text-gray-500 py-8 font-mono text-xs">'+(currentChatMode === 'channel' ? 'В этом канале пока нет сообщений. Напишите первым!' : 'Сообщений пока нет. Начните диалог!')+'</div>'; return; }
+            box.innerHTML = msgs.map(m => {
+                const badge = m.rank === 'COUNCIL' ? 'bg-purple-500/10 text-purple-400 border-purple-500/30 font-bold' : (m.rank === 'OPERATIVE' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-gray-500/10 text-gray-400 border-gray-500/20');
+                return '<div class="bg-[#0d121d] border border-[#1a2436] rounded-lg p-3 space-y-1"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="font-bold font-orbitron text-white">'+escapeHtml(m.user)+'</span><span class="px-1.5 py-0.5 text-[9px] rounded border '+badge+'">'+escapeHtml(m.rank)+'</span></div><span class="text-[10px] text-gray-500">'+escapeHtml(m.time)+'</span></div><p class="text-gray-300 text-xs leading-relaxed whitespace-pre-wrap">'+escapeHtml(m.text)+'</p></div>';
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput'), text = input.value.trim();
+            if (!text) return;
+            const currentUser = localStorage.getItem('mursoko_logged');
+            if (!currentUser) return alert('Войдите в аккаунт для отправки сообщений.');
+            const isAdmin = localStorage.getItem('mursoko_is_admin') === 'true';
+            if (currentChatMode === 'announcements') return alert('Объявления доступны для просмотра.');
+            if (currentChatMode === 'broadcast' && !isAdmin) return alert('Рассылка доступна только пяти основателям.');
+            const now = new Date(), timeStr = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+            const message = {user:currentUser,text,time:timeStr,rank:isAdmin?'COUNCIL':'OPERATIVE'};
+            if (currentChatMode === 'channel') {
+                if (!userHasAccessToChannel(channels.find(ch => ch.id === currentActiveChannel)?.level)) return alert('У вас нет доступа к этому каналу.');
+                (chatStore[currentActiveChannel] ||= []).push(message);
+                localStorage.setItem('mursoko_chat_store_v2',JSON.stringify(chatStore));
+            } else {
+                if (currentChatMode === 'direct' && (!activeDirectKey || !activeDirectKey.split('|').includes(currentUser))) return alert('Выберите личный диалог.');
+                (directMessageStore[activeDirectKey] ||= []).push(message);
+                localStorage.setItem('mursoko_direct_messages_v1',JSON.stringify(directMessageStore));
+                renderDmControls();
+            }
+            input.value=''; renderChatMessages();
+        }
+
+        function toggleChatManageModal() {
+            const isAdmin = localStorage.getItem('mursoko_is_admin') === 'true';
+            if (!isAdmin) {
+                alert('[ОТКАЗ В ДОСТУПЕ]\nСоздавать и настраивать новые чаты могут только 5 основателей МУРСОКО.');
+                return;
+            }
+            const modal = document.getElementById('chatManageModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function handleCreateChannelSubmit(e) {
+            e.preventDefault();
+            const isAdmin = localStorage.getItem('mursoko_is_admin') === 'true';
+            if (!isAdmin) {
+                alert('[ОТКАЗ В ДОСТУПЕ] Функция доступна только 5 основателям.');
+                return;
+            }
+
+            const nameInput = document.getElementById('newChanName').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const descInput = document.getElementById('newChanDesc').value.trim();
+            const levelInput = document.getElementById('newChanLevel').value;
+
+            const chanId = nameInput;
+            const fullChanName = '#' + nameInput;
+
+            const existingIndex = channels.findIndex(c => c.id === chanId);
+            if (existingIndex >= 0) {
+                channels[existingIndex].desc = descInput;
+                channels[existingIndex].level = levelInput;
+            } else {
+                channels.push({
+                    id: chanId,
+                    name: fullChanName,
+                    desc: descInput,
+                    level: levelInput
+                });
+                chatStore[chanId] = [
+                    { user: "SYSTEM", text: `Канал ${fullChanName} успешно создан одним из основателей.`, time: "12:00", rank: "SYS" }
+                ];
+            }
+
+            localStorage.setItem('mursoko_channels_v2', JSON.stringify(channels));
+            localStorage.setItem('mursoko_chat_store_v2', JSON.stringify(chatStore));
+
+            toggleChatManageModal();
+            renderChannels();
+            selectChannel(chanId);
+            alert(`[ЧАТ УСПЕШНО СОЗДАН/ОБНОВЛЁН]\nНазвание: ${fullChanName}\nДоступ: ${levelInput}`);
+        }
+
+        function switchModalTab(tab) {
+            const loginTab = document.getElementById('loginTabContent');
+            const regTab = document.getElementById('registerTabContent');
+            const btnLogin = document.getElementById('tabBtnLogin');
+            const btnReg = document.getElementById('tabBtnRegister');
+
+            if (tab === 'login') {
+                loginTab.classList.remove('hidden');
+                regTab.classList.add('hidden');
+                btnLogin.classList.add('border-[#00ffcc]', 'text-[#00ffcc]');
+                btnLogin.classList.remove('border-transparent', 'text-gray-400');
+                btnReg.classList.remove('border-[#00ffcc]', 'text-[#00ffcc]');
+                btnReg.classList.add('border-transparent', 'text-gray-400');
+            } else {
+                loginTab.classList.add('hidden');
+                regTab.classList.remove('hidden');
+                btnReg.classList.add('border-[#00ffcc]', 'text-[#00ffcc]');
+                btnReg.classList.remove('border-transparent', 'text-gray-400');
+                btnLogin.classList.remove('border-[#00ffcc]', 'text-[#00ffcc]');
+                btnLogin.classList.add('border-transparent', 'text-gray-400');
+            }
+        }
+
+        function dismissWelcomeGuide() {
+            localStorage.setItem('mursoko_intro_seen_v1', 'true');
+            document.getElementById('welcomeModal').classList.add('hidden');
+        }
+
+        function startRegistrationFromWelcome() { dismissWelcomeGuide(); openAuthModal('register'); }
+        function startLoginFromWelcome() { dismissWelcomeGuide(); openAuthModal('login'); }
+        function startExploringFromWelcome() { dismissWelcomeGuide(); document.getElementById('guide').scrollIntoView({behavior:'smooth'}); }
+        function showWelcomeGuide() {
+            if (!localStorage.getItem('mursoko_logged') && localStorage.getItem('mursoko_intro_seen_v1') !== 'true') {
+                document.getElementById('welcomeModal').classList.remove('hidden');
+                lucide.createIcons();
+            }
+        }
+
+        function openAuthModal(tab = 'login') {
+            switchModalTab(tab);
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const userInput = document.getElementById('loginUser').value.trim().toLowerCase();
+            const passInput = document.getElementById('loginPass').value;
+
+            // Core Council Login check for 5 Founders
+            if (coreCouncil[userInput]) {
+                if (passInput === CORE_PASSWORD) {
+                    const nick = coreCouncil[userInput];
+                    localStorage.setItem('mursoko_logged', nick);
+                    localStorage.setItem('mursoko_is_admin', 'true');
+                    localStorage.setItem('mursoko_user_role', 'senior');
+                    updateUserUI(nick, true);
+                    closeAuthModal();
+                    alert(`[АВТОРИЗАЦИЯ ОСНОВАТЕЛЯ]\nДобро пожаловать в систему МУРСОКО, ${nick}! Доступны все чаты и управление.`);
+                    return;
+                } else {
+                    alert('[ОШИБКА ДОСТУПА] Неверный пароль основателя.');
+                    return;
+                }
+            }
+
+            // Approved Custom Users Check
+            if (approvedUsers[userInput]) {
+                if (approvedUsers[userInput].password === passInput) {
+                    const userRole = approvedUsers[userInput].role || 'junior';
+                    localStorage.setItem('mursoko_logged', userInput);
+                    localStorage.setItem('mursoko_is_admin', 'false');
+                    localStorage.setItem('mursoko_user_role', userRole);
+                    updateUserUI(userInput, false);
+                    closeAuthModal();
+                    alert(`[АВТОРИЗАЦИЯ УСПЕШНА]\nДобро пожаловать, ${userInput}! Вам открыт доступ к разрешенным чатам.`);
+                    return;
+                } else {
+                    alert('[ОШИБКА ДОСТУПА] Неверный пароль.');
+                    return;
+                }
+            }
+
+            alert('[ОШИБКА ДОСТУПА] Аккаунт не найден. Убедитесь, что совет одобрил вашу анкету.');
+        }
+
+        function handleTrustQuestionnaireSubmit(e) {
+            e.preventDefault();
+            localStorage.setItem('mursoko_intro_seen_v1', 'true');
+            const name = document.getElementById('regCandidateName').value.trim();
+            const contact = document.getElementById('regContact').value.trim();
+            const direction = document.getElementById('regDirection').value;
+            const ndaExp = document.getElementById('regNdaExperience').value.trim();
+            const trustReason = document.getElementById('regTrustReason').value.trim();
+            const readyTest = document.getElementById('regReadyTest').value;
+
+            const appObj = {
+                id: 'APP-' + Date.now().toString().slice(-4),
+                name: name,
+                contact: contact,
+                direction: direction,
+                ndaExp: ndaExp,
+                trustReason: trustReason,
+                readyTest: readyTest,
+                status: 'PENDING',
+                date: new Date().toLocaleDateString()
+            };
+
+            applications.push(appObj);
+            localStorage.setItem('mursoko_trust_apps', JSON.stringify(applications));
+
+            closeAuthModal();
+            renderApplications();
+
+            alert(`[АНКЕТА ОТПРАВЛЕНА 5 ОСНОВАТЕЛЯМ]\nID: ${appObj.id}\nКандидат: ${name}\n\nОжидайте рассмотрения.`);
+            appendTerminalLog(`> Questionnaire received from ${name} (${appObj.id}). Status: Pending council review.`);
+        }
+
+        function updateUserUI(nick, isAdmin) {
+            document.getElementById('authBtnText').innerText = nick.toUpperCase();
+            document.getElementById('headerClearanceText').innerText = isAdmin ? 'CORE FOUNDER [LEVEL 5]' : 'OPERATIVE [LEVEL 1]';
+            document.getElementById('headerClearanceText').className = isAdmin ? 'text-purple-400 font-mono font-bold' : 'text-emerald-400 font-mono';
+
+            // Hide guest lock banner & show main chat box
+            document.getElementById('chatGuestLockBanner').classList.add('hidden');
+            document.getElementById('chatMainContainer').classList.remove('hidden');
+
+            // Dashboard card
+            document.getElementById('userAccountCard').classList.remove('hidden');
+            document.getElementById('userCardNick').innerText = nick.toUpperCase();
+            
+            if (isAdmin) {
+                document.getElementById('userCardRole').innerText = 'ОСНОВАТЕЛЬ МУРСОКО';
+                document.getElementById('userCardRole').className = 'px-2.5 py-1 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/30';
+                document.getElementById('userClearance').innerText = 'LEVEL 5 (CORE ADMIN)';
+                document.getElementById('userChatAccess').innerText = 'ПОЛНЫЙ ДОСТУП И СОЗДАНИЕ';
+                document.getElementById('userRoleBadgeInChat').innerText = 'CORE FOUNDER';
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('chatAdminControlBtn').classList.remove('hidden');
+                renderApplications();
+            } else {
+                const role = localStorage.getItem('mursoko_user_role') || 'junior';
+                const specialRole = approvedUsers[nick]?.specialRole || 'participant';
+                document.getElementById('userCardRole').innerText = specialRoleLabels[specialRole] || 'УЧАСТНИК';
+                document.getElementById('userCardRole').className = 'px-2.5 py-1 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+                document.getElementById('userClearance').innerText = `LEVEL 1 (${role.toUpperCase()})`;
+                document.getElementById('userChatAccess').innerText = 'РАЗРЕШЁННЫЕ КАНАЛЫ';
+                document.getElementById('userRoleBadgeInChat').innerText = 'OPERATIVE';
+                document.getElementById('adminPanel').classList.add('hidden');
+                document.getElementById('chatAdminControlBtn').classList.add('hidden');
+            }
+
+            document.getElementById('heroActionBtns').classList.add('hidden');
+            if (workspaceScope === 'personal') { workspaceCatalog.personal[nick] ||= ['Мой проект']; localStorage.setItem('mursoko_workspace_catalog_v1', JSON.stringify(workspaceCatalog)); populateWorkspaceProjects(); loadWorkspaceProject(); }
+            currentChatMode = 'channel';
+            const firstChannel = channels.find(channel => userHasAccessToChannel(channel.level));
+            if (firstChannel) selectChannel(firstChannel.id); else { renderChannels(); renderChatMessages(); }
+            renderTerminalLog();
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('mursoko_logged');
+            localStorage.removeItem('mursoko_is_admin');
+            localStorage.removeItem('mursoko_user_role');
+            workspaceScope = 'personal';
+            const scopeSelect = document.getElementById('workspaceScope'); if (scopeSelect) scopeSelect.value = 'personal';
+
+            document.getElementById('authBtnText').innerText = 'ВХОД / АНКЕТА';
+            document.getElementById('headerClearanceText').innerText = 'GUEST';
+            document.getElementById('headerClearanceText').className = 'text-amber-400 font-mono';
+
+            document.getElementById('userAccountCard').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('chatAdminControlBtn').classList.add('hidden');
+            document.getElementById('heroActionBtns').classList.remove('hidden');
+
+            // Lock chat UI
+            document.getElementById('chatGuestLockBanner').classList.remove('hidden');
+            document.getElementById('chatMainContainer').classList.add('hidden');
+            initWorkspaceManager(); switchTerminalMode('personal');
+
+            alert('Вы вышли из системы МУРСОКО.');
+        }
+
+        function renderApplications() {
+            const list = document.getElementById('applicationsList');
+            const pendingBadge = document.getElementById('pendingBadge');
+            const approvedList = document.getElementById('approvedUsersList');
+            
+            const pendingApps = applications.filter(a => a.status === 'PENDING');
+            pendingBadge.innerText = `${pendingApps.length} АНКЕТ НА РАССМОТРЕНИИ`;
+
+            if (applications.length === 0) {
+                list.innerHTML = `<div class="p-4 bg-[#06080d] border border-[#1a2436] rounded text-gray-500 font-mono text-xs">АНКЕТ НА ПРОВЕРКУ НЕТ.</div>`;
+            } else {
+                list.innerHTML = applications.map(app => `
+                    <div class="bg-[#06080d] border border-[#1a2436] rounded-lg p-4 font-mono text-xs space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1a2436] pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[#00ffcc] font-bold">${app.id}</span>
+                                <span class="text-white font-bold text-sm">${app.name}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] ${app.status === 'PENDING' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'}">${app.status}</span>
+                            </div>
+                            <span class="text-gray-500 text-[11px]">ДАТА: ${app.date}</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-300">
+                            <p><strong class="text-gray-500">КОНТАКТ:</strong> <span class="text-cyan-400">${app.contact}</span></p>
+                            <p><strong class="text-gray-500">НАПРАВЛЕНИЕ:</strong> <span class="text-purple-400">${app.direction}</span></p>
+                        </div>
+
+                        <div class="space-y-1.5 bg-[#0d121d] p-3 rounded border border-[#1a2436] text-[11px]">
+                            <p><strong class="text-[#00ffcc]">Опыт NDA/Конфиденциальность:</strong> ${app.ndaExp}</p>
+                            <p><strong class="text-[#00ffcc]">Причина доверия & Цели:</strong> ${app.trustReason}</p>
+                            <p><strong class="text-[#00ffcc]">Готовность к проверке:</strong> ${app.readyTest}</p>
+                        </div>
+
+                        <div class="flex justify-end pt-1">
+                            ${app.status === 'PENDING' ? `
+                                <button onclick="approveApplication('${app.id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-orbitron font-bold rounded flex items-center gap-2">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i> ОДОБРИТЬ С ВЫДАЧЕЙ mursoko_[ник]
+                                </button>
+                            ` : `
+                                <span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="user-check" class="w-4 h-4"></i> ДОСТУП ПРЕДОСТАВЛЕН</span>
+                            `}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Only the five founders can assign specialist roles.
+            const keys = Object.keys(approvedUsers);
+            if (keys.length === 0) {
+                approvedList.innerHTML = '<div class="col-span-3 text-gray-500 text-xs">Пока нет одобренных участников.</div>';
+            } else {
+                approvedList.innerHTML = keys.map(k => {
+                    const assigned = approvedUsers[k].specialRole || 'participant';
+                    const options = Object.entries(specialRoleLabels).map(([value,label]) => '<option value="'+value+'" '+(assigned===value?'selected':'')+'>'+label+'</option>').join('');
+                    return '<div class="bg-[#06080d] p-3 rounded border border-[#1a2436] space-y-2"><div><strong class="text-[#00ffcc] block">'+escapeHtml(k)+'</strong><span class="text-gray-400 text-[10px]">'+escapeHtml(approvedUsers[k].name||'')+' · '+escapeHtml(approvedUsers[k].direction||'')+'</span></div><label class="block text-[10px] text-gray-500">СПЕЦИАЛЬНАЯ РОЛЬ<select onchange="assignMemberRole(\''+encodeURIComponent(k)+'\',this.value)" class="mt-1 w-full bg-[#0d121d] border border-[#1a2436] rounded p-2 text-white text-xs">'+options+'</select></label></div>';
+                }).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        function approveApplication(id) {
+            if (localStorage.getItem('mursoko_is_admin') !== 'true') return alert('Одобрять участников могут только пять основателей.');
+            const app=applications.find(item=>item.id===id);
+            if(!app||app.status!=='PENDING')return alert('Эта заявка уже рассмотрена.');
+            const fallback='mursoko_'+(app.name.toLowerCase().replace(/[^a-z0-9]/g,'')||app.id.toLowerCase());
+            const entered=prompt('Логин участника (система добавит префикс mursoko_):',fallback);
+            if(!entered)return;
+            const suffix=entered.trim().toLowerCase().replace(/^mursoko[_-]?/,'').replace(/[^a-z0-9_]/g,'');
+            if(!suffix)return alert('Введите латинские буквы или цифры для логина.');
+            const customNick='mursoko_'+suffix;
+            if(approvedUsers[customNick]||coreCouncil[customNick])return alert('Этот логин уже используется.');
+            const customPass=prompt('Задайте пароль для '+customNick+':','mur'+Math.floor(1000+Math.random()*9000));
+            if(!customPass)return;
+            const roleChoice=prompt('Уровень доступа к чатам: junior или mid','junior');
+            app.status='APPROVED';
+            approvedUsers[customNick]={password:customPass,name:app.name,direction:app.direction,role:roleChoice==='mid'?'mid':'junior',specialRole:'participant'};
+            localStorage.setItem('mursoko_trust_apps',JSON.stringify(applications));
+            localStorage.setItem('mursoko_approved_accounts',JSON.stringify(approvedUsers));
+            renderApplications();
+            alert('Заявка одобрена. Логин: '+customNick+'\nПароль: '+customPass+'\nТеперь выберите специальную роль участника в списке ниже.');
+            appendTerminalLog('Одобрен аккаунт '+customNick+'; начальная роль: участник.');
+        }
+
+        function assignMemberRole(encodedUser, role) {
+            if (localStorage.getItem('mursoko_is_admin') !== 'true') return alert('Выдавать роли могут только пять основателей.');
+            const user = decodeURIComponent(encodedUser);
+            if (!approvedUsers[user] || !Object.hasOwn(specialRoleLabels, role)) return;
+            approvedUsers[user].specialRole = role;
+            localStorage.setItem('mursoko_approved_accounts', JSON.stringify(approvedUsers));
+            renderApplications();
+            if (localStorage.getItem('mursoko_logged') === user) updateUserUI(user, false);
+        }
+
+        function openMemberModal(id) {
+            const m = teamMembers.find(x => x.id === id);
+            if (!m) return;
+
+            const modalContent = document.getElementById('memberModalContent');
+            modalContent.innerHTML = `
+                <div class="space-y-4 font-mono">
+                    <div class="flex items-center gap-3 border-b border-[#1a2436] pb-3">
+                        <div class="w-12 h-12 rounded bg-[#06080d] border border-[#00ffcc] flex items-center justify-center text-[#00ffcc]">
+                            <i data-lucide="shield" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-cyan-400">ОСНОВАТЕЛЬ МУРСОКО</span>
+                            <h3 class="font-orbitron font-bold text-white text-xl">${m.nickname}</h3>
+                            <p class="text-xs text-[#00ffcc]">${m.role}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <span class="text-gray-500 block mb-1">О ПЕРСОНЕ И ПОЛНОМОЧИЯХ:</span>
+                            <p class="text-gray-300 leading-relaxed bg-[#06080d] p-3 rounded border border-[#1a2436]">${m.bio}</p>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500 block mb-1">СЕТЕВОЙ СЕТАП И ЖЕЛЕЗО:</span>
+                            <p class="text-cyan-400 bg-[#06080d] p-2.5 rounded border border-[#1a2436]">${m.hardware}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('memberModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeMemberModal() {
+            document.getElementById('memberModal').classList.add('hidden');
+        }
+
+        function initPhysicsCanvas() {
+            const canvas = document.getElementById('physicsCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const nodes = [];
+            const nodeCount = 35;
+            let mouse = { x: null, y: null, radius: 110 };
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: (Math.random() - 0.5) * 1.2,
+                    radius: Math.random() * 2 + 1.5
+                });
+            }
+
+            function animatePhysics() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                nodes.forEach((n, i) => {
+                    n.x += n.vx;
+                    n.y += n.vy;
+
+                    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+                    // Mouse physics repulsion
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const dx = mouse.x - n.x;
+                        const dy = mouse.y - n.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < mouse.radius) {
+                            const angle = Math.atan2(dy, dx);
+                            const force = (mouse.radius - dist) / mouse.radius;
+                            n.x -= Math.cos(angle) * force * 3.5;
+                            n.y -= Math.sin(angle) * force * 3.5;
+                        }
+                    }
+
+                    // Node dot
+                    ctx.fillStyle = '#00ffcc';
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Connect lines (Synapses)
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const n2 = nodes[j];
+                        const dx = n.x - n2.x;
+                        const dy = n.y - n2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 85) {
+                            ctx.strokeStyle = `rgba(0, 255, 204, ${1 - dist / 85})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.beginPath();
+                            ctx.moveTo(n.x, n.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            ctx.stroke();
+                        }
+                    }
+                });
+
+                // Update Ping Telemetry
+                const currentPing = 8.5 + Math.random() * 3.2;
+                document.getElementById('telemetryPing').innerText = currentPing.toFixed(1) + ' ms';
+
+                requestAnimationFrame(animatePhysics);
+            }
+
+            animatePhysics();
+        }
+
+        const starterCode = '<!doctype html>\n<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Мой проект</title><style>body{font:16px system-ui;background:#101827;color:#eef;padding:3rem}button{padding:.8rem 1.2rem;background:#00ffcc;border:0;border-radius:8px}</style><h1>Привет, мир!</h1><p>Начните создавать свой проект здесь.</p><button onclick="this.textContent=\'Работает!\'">Нажми меня</button></html>';
+        let photoImage = null, photoObjectUrl = '', videoObjectUrl = '';
+        let pyodidePromise = null;
+        let workspaceScope = 'personal';
+        let workspaceCatalog = JSON.parse(localStorage.getItem('mursoko_workspace_catalog_v1') || 'null') || {shared:['Общий проект'],personal:{}};
+        let workspaceFiles = JSON.parse(localStorage.getItem('mursoko_workspace_files_v1') || '{}');
+        let languageCache = {};
+        let currentCodeLanguage = 'html';
+        let terminalMode = 'personal';
+        let terminalRooms = JSON.parse(localStorage.getItem('mursoko_terminal_rooms_v1') || 'null') || [{id:'general',name:'Общая'}];
+        let terminalHistory = JSON.parse(localStorage.getItem('mursoko_terminal_history_v1') || '{}');
+        let selectedTerminalRoom = 'general';
+
+        function currentWorkspaceUser(){return localStorage.getItem('mursoko_logged') || 'guest';}
+        function workspaceList(){if(workspaceScope==='shared')return workspaceCatalog.shared;const user=currentWorkspaceUser();workspaceCatalog.personal[user] ||= ['Мой проект'];return workspaceCatalog.personal[user];}
+        function workspaceKey(){const project=document.getElementById('workspaceProjectSelect').value || workspaceList()[0];return workspaceScope==='shared'?'shared:'+project:'personal:'+currentWorkspaceUser()+':'+project;}
+        function initWorkspaceManager(){workspaceCatalog.personal[currentWorkspaceUser()] ||= ['Мой проект'];populateWorkspaceProjects();const legacy=localStorage.getItem('mursoko_code_draft'),firstKey='personal:'+currentWorkspaceUser()+':Мой проект';if(legacy&&!workspaceFiles[firstKey])workspaceFiles[firstKey]={code:legacy,language:'html'};localStorage.setItem('mursoko_workspace_catalog_v1',JSON.stringify(workspaceCatalog));loadWorkspaceProject();}
+        function populateWorkspaceProjects(){const select=document.getElementById('workspaceProjectSelect');if(!select)return;const list=workspaceList();select.innerHTML=list.map(name=>'<option value="'+escapeHtml(name)+'">'+escapeHtml(name)+'</option>').join('');}
+        function changeWorkspaceScope(){workspaceScope=document.getElementById('workspaceScope').value;if(workspaceScope==='shared'&&!localStorage.getItem('mursoko_logged')){alert('Войдите, чтобы работать в общем проекте.');workspaceScope='personal';document.getElementById('workspaceScope').value='personal';}populateWorkspaceProjects();loadWorkspaceProject();}
+        function createWorkspaceProject(){if(!localStorage.getItem('mursoko_logged'))return alert('Войдите, чтобы создавать проекты.');const name=prompt(workspaceScope==='shared'?'Название общего проекта':'Название личного проекта');if(!name)return;const clean=name.trim().slice(0,40);if(!clean)return;const list=workspaceList();if(list.includes(clean))return alert('Проект с таким названием уже есть.');list.push(clean);localStorage.setItem('mursoko_workspace_catalog_v1',JSON.stringify(workspaceCatalog));populateWorkspaceProjects();document.getElementById('workspaceProjectSelect').value=clean;loadWorkspaceProject();}
+        function loadWorkspaceProject(){const key=workspaceKey(),file=workspaceFiles[key];languageCache=file?.drafts||{};currentCodeLanguage=file?.language||'html';document.getElementById('codeLanguage').value=currentCodeLanguage;if(file){document.getElementById('codeEditor').value=file.code;languageCache[currentCodeLanguage]=file.code;}else changeCodeLanguage(true);}
+        function saveWorkspaceProject(){if(workspaceScope==='shared'&&!localStorage.getItem('mursoko_logged'))return alert('Войдите, чтобы сохранить общий проект.');const key=workspaceKey(),lang=document.getElementById('codeLanguage').value;languageCache[lang]=document.getElementById('codeEditor').value;workspaceFiles[key]={code:document.getElementById('codeEditor').value,language:lang,drafts:languageCache,updatedAt:new Date().toISOString(),updatedBy:currentWorkspaceUser()};localStorage.setItem('mursoko_workspace_files_v1',JSON.stringify(workspaceFiles));localStorage.setItem('mursoko_code_draft',document.getElementById('codeEditor').value);setCodeOutput('Проект сохранён: '+document.getElementById('workspaceProjectSelect').value+' · '+currentWorkspaceUser());}
+        function changeCodeLanguage(reset=false){const lang=document.getElementById('codeLanguage').value,editor=document.getElementById('codeEditor'),samples={html:starterCode,javascript:'console.log("Привет из JavaScript!");\nconst score = 42;\nconsole.log("Очки:", score);',python:'print("Привет из Python!")\nscore = 42\nprint("Очки:", score)'};if(reset){languageCache={};currentCodeLanguage=lang;editor.value=samples[lang];}else{if(editor.value.trim())languageCache[currentCodeLanguage]=editor.value;currentCodeLanguage=lang;editor.value=languageCache[lang]||samples[lang];}editor.dataset.language=lang;editor.placeholder=lang==='python'?'Введите код Python…':lang==='javascript'?'Введите код JavaScript…':'Введите HTML…';}
+        function setCodeOutput(text){document.getElementById('codeOutput').textContent=text;}
+        function runJavaScriptCode(code){
+            const frame=document.getElementById('codePreview');
+            const safeCode=code.replace(/<\/script/gi,'<\\/script');
+            const closeScript='<'+ '/script>';
+            const frameHtml='<!doctype html><meta charset="utf-8"><body style="font:13px monospace;padding:12px"><pre id="out"></pre><script>const out=document.getElementById("out");const console={log:(...a)=>out.textContent+=a.join(" ")+String.fromCharCode(10),error:(...a)=>out.textContent+="ERROR: "+a.join(" ")+String.fromCharCode(10),warn:(...a)=>out.textContent+="WARN: "+a.join(" ")+String.fromCharCode(10)};try{'+safeCode+'}catch(e){out.textContent+="ERROR: "+e.message}'+closeScript+'</body>';
+            frame.srcdoc=frameHtml;setCodeOutput('JavaScript запущен в изолированном предпросмотре.');
+        }
+
+        function ensurePyodide(){if(pyodidePromise)return pyodidePromise;pyodidePromise=new Promise((resolve,reject)=>{if(window.loadPyodide)return resolve(window.loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/'}));const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js';script.onload=()=>window.loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/'}).then(resolve,reject);script.onerror=()=>reject(new Error('Не удалось загрузить Python. Проверьте подключение к интернету.'));document.head.appendChild(script);});return pyodidePromise;}
+        async function runPythonCode(code){
+            setCodeOutput('Загрузка среды Python при первом запуске…');
+            try{const py=await ensurePyodide();let output='';py.setStdout({batched:text=>{output+=text+String.fromCharCode(10);setCodeOutput(output);}});py.setStderr({batched:text=>{output+='Ошибка: '+text+String.fromCharCode(10);setCodeOutput(output);}});const result=await py.runPythonAsync(code);if(result!==undefined&&result!==null){const value=String(result);if(value&&value!=='None')output+=(output?String.fromCharCode(10):'')+value;}setCodeOutput(output||'Код выполнен без вывода.');}catch(error){setCodeOutput('Python: '+error.message);}
+        }
+
+        function runCode(){const lang=document.getElementById('codeLanguage').value,code=document.getElementById('codeEditor').value;if(lang==='html'){previewCode();setCodeOutput('HTML показан в предпросмотре.');}else if(lang==='javascript'){runJavaScriptCode(code);}else runPythonCode(code);}
+
+        function terminalKey(){return terminalMode==='group'?'group:'+selectedTerminalRoom:'personal:'+currentWorkspaceUser();}
+        function renderTerminalRooms(){const select=document.getElementById('terminalRoomSelect');if(!select)return;select.innerHTML=terminalRooms.map(room=>'<option value="'+escapeHtml(room.id)+'">'+escapeHtml(room.name)+'</option>').join('');select.value=selectedTerminalRoom;}
+        function renderTerminalLog(){const log=document.getElementById('terminalLog');if(!log)return;const rows=terminalHistory[terminalKey()]||[];log.innerHTML=rows.map(row=>'<p class="whitespace-pre-wrap"><span class="text-[#00ffcc]">'+escapeHtml(row.user)+' › </span>'+escapeHtml(row.text)+'</p>').join('')||'<p class="text-gray-500">Пусто. Напишите help для списка команд.</p>';log.scrollTop=log.scrollHeight;}
+        function switchTerminalMode(mode){if(mode==='group'&&!localStorage.getItem('mursoko_logged')){alert('Общий терминал доступен после входа.');return openAuthModal('login');}terminalMode=mode;document.getElementById('terminalRoomSelect').classList.toggle('hidden',mode!=='group');document.getElementById('createTerminalRoomBtn').classList.toggle('hidden',mode!=='group');document.getElementById('terminalPersonalTab').className='px-3 py-2 rounded text-xs '+(mode==='personal'?'bg-[#00ffcc] text-black font-bold':'bg-[#1a2436] text-white');document.getElementById('terminalGroupTab').className='px-3 py-2 rounded text-xs '+(mode==='group'?'bg-[#00ffcc] text-black font-bold':'bg-[#1a2436] text-white');renderTerminalRooms();renderTerminalLog();}
+        function selectTerminalRoom(room){selectedTerminalRoom=room;renderTerminalLog();}
+        function createTerminalRoom(){if(!localStorage.getItem('mursoko_logged'))return alert('Войдите, чтобы создать комнату.');const name=prompt('Название общей комнаты или проекта:');if(!name)return;const clean=name.trim().slice(0,36);if(!clean)return;const id='room-'+Date.now();terminalRooms.push({id,name:clean});localStorage.setItem('mursoko_terminal_rooms_v1',JSON.stringify(terminalRooms));selectedTerminalRoom=id;renderTerminalRooms();renderTerminalLog();appendTerminalLog('Комната «'+clean+'» создана участником.');}
+        function clearTerminal(){terminalHistory[terminalKey()]=[];localStorage.setItem('mursoko_terminal_history_v1',JSON.stringify(terminalHistory));renderTerminalLog();}
+        function handleTerminalSubmit(e){e.preventDefault();const input=document.getElementById('termInput'),cmd=input.value.trim();if(!cmd)return;input.value='';appendTerminalLog('$ '+cmd);const lower=cmd.toLowerCase();if(lower==='help')appendTerminalLog('Команды: help, whoami, status, projects, chats, studio, login, apply, clear. Это рабочая консоль проекта, она не запускает команды Windows.');else if(lower==='whoami')appendTerminalLog(localStorage.getItem('mursoko_logged')||'guest');else if(lower==='status')appendTerminalLog('MURSOKO workspace · режим '+(terminalMode==='group'?'общий':'личный')+' · комната '+(terminalMode==='group'?selectedTerminalRoom:'личная'));else if(lower==='projects')appendTerminalLog('Проекты: '+workspaceList().join(', '));else if(lower==='login')openAuthModal('login');else if(lower==='apply')openAuthModal('register');else if(lower==='chats')location.hash='#chats';else if(lower==='studio')location.hash='#studio';else if(lower==='clear')clearTerminal();else if(lower.startsWith('echo '))appendTerminalLog(cmd.slice(5));else appendTerminalLog('Команда не найдена. Введите help.');}
+        function appendTerminalLog(msg){const key=terminalKey();terminalHistory[key] ||= [];terminalHistory[key].push({user:localStorage.getItem('mursoko_logged')||'SYSTEM',text:String(msg)});if(terminalHistory[key].length>250)terminalHistory[key].splice(0,terminalHistory[key].length-250);localStorage.setItem('mursoko_terminal_history_v1',JSON.stringify(terminalHistory));renderTerminalLog();}
+
+        function showStudioTool(name) {
+            document.querySelectorAll('.studio-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById('studio-'+name).classList.remove('hidden');
+            document.querySelectorAll('.studio-tab').forEach(el => {const active=el.dataset.studioTab===name;el.className='studio-tab px-4 py-2 rounded-lg text-xs '+(active?'bg-[#00ffcc] text-black font-bold':'bg-[#0d121d] border border-[#1a2436] text-white');});
+        }
+        function saveCodeDraft(){localStorage.setItem('mursoko_code_draft',document.getElementById('codeEditor').value);alert('Черновик сохранён в этом браузере.');}
+        function previewCode(){document.getElementById('codePreview').srcdoc=document.getElementById('codeEditor').value;}
+        function downloadBlob(data,name,type='text/html'){const blob=data instanceof Blob?data:new Blob([data],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+        function downloadCode(){const lang=document.getElementById('codeLanguage').value,ext=lang==='python'?'py':lang==='javascript'?'js':'html',mime=lang==='python'?'text/x-python':lang==='javascript'?'text/javascript':'text/html';downloadBlob(document.getElementById('codeEditor').value,'mursoko-project.'+ext,mime);}
+        function siteMarkup(){const name=document.getElementById('siteName').value.trim()||'Мой проект',head=document.getElementById('siteHeadline').value.trim()||name,desc=document.getElementById('siteDescription').value.trim(),color=/^#[0-9a-f]{6}$/i.test(document.getElementById('siteColor').value)?document.getElementById('siteColor').value:'#00ffcc';return '<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(name)+'</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#080c14;color:#f3f6fa;font:18px system-ui}.card{text-align:center;padding:3rem;max-width:700px}h1{font-size:clamp(2rem,7vw,5rem);color:'+color+'}p{color:#aab6c8}</style><main class="card"><h1>'+escapeHtml(head)+'</h1><p>'+escapeHtml(desc)+'</p><small>'+escapeHtml(name)+'</small></main></html>';}
+        function applySitePreset(){const preset=document.getElementById('sitePreset').value,values={gaming:['Игровое сообщество','Собери команду. Начни игру.','Новости, события и участники нашей команды.','#00ffcc'],portfolio:['Моё портфолио','Мои работы и проекты','Рассказываю о проектах, навыках и идеях.','#8a2be2'],launch:['Новый проект','Новая идея начинается здесь','Узнайте больше о проекте и присоединяйтесь.','#3b82f6']}[preset];document.getElementById('siteName').value=values[0];document.getElementById('siteHeadline').value=values[1];document.getElementById('siteDescription').value=values[2];document.getElementById('siteColor').value=values[3];updateSitePreview();}
+        function updateSitePreview(){document.getElementById('sitePreview').srcdoc=siteMarkup();}
+        function downloadSite(){downloadBlob(siteMarkup(),'mursoko-site.html');}
+        let designShapeCount=0;
+        function updateDesignPreview(){const svg=document.getElementById('designCanvas'),title=svg.querySelector('[data-static-title]');title.textContent=document.getElementById('designTitle').value;title.setAttribute('fill',document.getElementById('designColor1').value);}
+        function addDesignShape(type){const svg=document.getElementById('designCanvas'),color=document.getElementById('designColor1').value,n=designShapeCount++,x=100+(n%5)*105,y=150+Math.floor(n/5)*85;let el;if(type==='circle'){el=document.createElementNS('http://www.w3.org/2000/svg','circle');el.setAttribute('cx',x);el.setAttribute('cy',y);el.setAttribute('r','34');}else if(type==='text'){el=document.createElementNS('http://www.w3.org/2000/svg','text');el.setAttribute('x',x);el.setAttribute('y',y);el.setAttribute('font-size','24');el.setAttribute('font-family','Arial');el.textContent=prompt('Текст на макете:','Новый текст')||'Новый текст';}else{el=document.createElementNS('http://www.w3.org/2000/svg','rect');el.setAttribute('x',x-40);el.setAttribute('y',y-30);el.setAttribute('width','80');el.setAttribute('height','60');el.setAttribute('rx','10');}el.setAttribute('fill',color);el.setAttribute('data-x',x);el.setAttribute('data-y',y);el.style.cursor='move';el.addEventListener('pointerdown',e=>{const point=svg.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const p=point.matrixTransform(svg.getScreenCTM().inverse());el.dataset.dragDx=p.x-Number(el.dataset.x);el.dataset.dragDy=p.y-Number(el.dataset.y);el.setPointerCapture(e.pointerId);});el.addEventListener('pointermove',e=>{if(!el.hasPointerCapture(e.pointerId))return;const point=svg.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const p=point.matrixTransform(svg.getScreenCTM().inverse());const nx=p.x-Number(el.dataset.dragDx),ny=p.y-Number(el.dataset.dragDy);el.dataset.x=nx;el.dataset.y=ny;if(el.tagName==='circle'){el.setAttribute('cx',nx);el.setAttribute('cy',ny);}else{el.setAttribute('x',el.tagName==='rect'?nx-40:nx);el.setAttribute('y',el.tagName==='rect'?ny-30:ny);}});svg.appendChild(el);}
+        function clearDesignCanvas(){document.querySelectorAll('#designCanvas [data-x]').forEach(el=>el.remove());designShapeCount=0;}
+        function designSvgString(){const clone=document.getElementById('designCanvas').cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');return new XMLSerializer().serializeToString(clone);}
+        function downloadDesignBoard(){downloadBlob(designSvgString(),'mursoko-design.svg','image/svg+xml');}
+        function downloadDesignPNG(){const source=designSvgString(),url=URL.createObjectURL(new Blob([source],{type:'image/svg+xml'})),img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=1600;c.height=900;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(blob=>blob&&downloadBlob(blob,'mursoko-design.png'),'image/png');URL.revokeObjectURL(url);};img.src=url;}
+        function loadPhoto(event){const file=event.target.files[0];if(!file)return;if(photoObjectUrl)URL.revokeObjectURL(photoObjectUrl);photoObjectUrl=URL.createObjectURL(file);photoImage=new Image();photoImage.onload=()=>{document.getElementById('photoPreview').src=photoObjectUrl;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden');applyPhotoFilter();};photoImage.src=photoObjectUrl;}
+        function photoFilter(){return 'brightness('+document.getElementById('photoBrightness').value+'%) contrast('+document.getElementById('photoContrast').value+'%) saturate('+document.getElementById('photoSaturation').value+'%)';}
+        function applyPhotoFilter(){if(!photoImage)return;const rotation=Number(document.getElementById('photoRotation').value)||0;document.getElementById('photoPreview').style.filter=photoFilter();document.getElementById('photoPreview').style.transform='rotate('+rotation+'deg)';}
+        function downloadPhoto(){if(!photoImage)return alert('Сначала выберите фотографию.');const angle=(Number(document.getElementById('photoRotation').value)||0)*Math.PI/180,w=photoImage.naturalWidth,h=photoImage.naturalHeight,outW=Math.ceil(Math.abs(w*Math.cos(angle))+Math.abs(h*Math.sin(angle))),outH=Math.ceil(Math.abs(w*Math.sin(angle))+Math.abs(h*Math.cos(angle))),c=document.getElementById('photoCanvas'),ctx=c.getContext('2d');c.width=outW;c.height=outH;ctx.filter=photoFilter();ctx.translate(outW/2,outH/2);ctx.rotate(angle);ctx.drawImage(photoImage,-w/2,-h/2);c.toBlob(blob=>blob&&downloadBlob(blob,'mursoko-photo.png'),'image/png');}
+        function loadVideo(event){const file=event.target.files[0];if(!file)return;const video=document.getElementById('videoPreview');if(videoObjectUrl)URL.revokeObjectURL(videoObjectUrl);videoObjectUrl=URL.createObjectURL(file);video.src=videoObjectUrl;video.onloadedmetadata=()=>{document.getElementById('videoEnd').value=Math.min(10,video.duration).toFixed(1);document.getElementById('videoEnd').max=video.duration;document.getElementById('videoStatus').textContent='Клип загружен · '+video.duration.toFixed(1)+' сек.';updateVideoTimeline();};}
+        function updateVideoTimeline(){const video=document.getElementById('videoPreview'),fill=document.getElementById('videoTimelineFill');if(!fill)return;const duration=video.duration||Number(document.getElementById('videoEnd').value)||10,start=Math.max(0,Number(document.getElementById('videoStart').value)||0),end=Math.min(duration,Number(document.getElementById('videoEnd').value)||duration);fill.style.left=(Math.min(100,start/duration*100))+'%';fill.style.width=(Math.max(0,(end-start)/duration*100))+'%';}
+        function videoFilterCSS(){return ({none:'none',cinema:'contrast(1.12) saturate(.82)',mono:'grayscale(1)',warm:'sepia(.28) saturate(1.2)'})[document.getElementById('videoEffect').value]||'none';}
+        function updateVideoLook(){document.getElementById('videoPreview').style.filter=videoFilterCSS();document.getElementById('videoCaptionPreview').textContent=document.getElementById('videoCaption').value;}
+        async function exportVideoClip(){const v=document.getElementById('videoPreview'),status=document.getElementById('videoStatus'),start=Number(document.getElementById('videoStart').value),end=Number(document.getElementById('videoEnd').value),canvas=document.getElementById('videoRenderCanvas');if(!v.src||!v.duration)return alert('Сначала выберите видео.');if(!(start>=0&&end>start&&end<=v.duration))return alert('Проверьте время начала и конца фрагмента.');if(!window.MediaRecorder||!canvas.captureStream||!v.captureStream)return alert('Экспорт видео не поддерживается этим браузером.');try{v.pause();const speed=Number(document.getElementById('videoSpeed').value)||1;v.playbackRate=speed;canvas.width=v.videoWidth||1280;canvas.height=v.videoHeight||720;const ctx=canvas.getContext('2d'),videoStream=v.captureStream(),stream=canvas.captureStream(30);videoStream.getAudioTracks().forEach(track=>stream.addTrack(track));let recording=true;const caption=document.getElementById('videoCaption').value.trim();function draw(){if(!recording)return;ctx.filter=videoFilterCSS();ctx.drawImage(v,0,0,canvas.width,canvas.height);ctx.filter='none';if(caption){const size=Math.max(24,canvas.width*.035);ctx.font='bold '+size+'px Arial';ctx.textAlign='center';ctx.lineWidth=Math.max(3,size*.12);ctx.strokeStyle='rgba(0,0,0,.85)';ctx.fillStyle='#fff';ctx.strokeText(caption,canvas.width/2,canvas.height*.88,canvas.width*.9);ctx.fillText(caption,canvas.width/2,canvas.height*.88,canvas.width*.9);}requestAnimationFrame(draw);}const chunks=[],mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm',recorder=new MediaRecorder(stream,{mimeType:mime});recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onstop=()=>{recording=false;stream.getTracks().forEach(track=>track.stop());videoStream.getTracks().forEach(track=>track.stop());downloadBlob(new Blob(chunks,{type:'video/webm'}),'mursoko-edit.webm');status.textContent='Готово: фрагмент скачан в WebM.';v.playbackRate=1;v.ontimeupdate=updateVideoTimeline;};if(Math.abs(v.currentTime-start)>0.03)await new Promise(resolve=>{v.addEventListener('seeked',resolve,{once:true});v.currentTime=start;});recorder.start();draw();v.ontimeupdate=()=>{updateVideoTimeline();if(v.currentTime>=end){v.pause();if(recorder.state!=='inactive')recorder.stop();}};await v.play();status.textContent='Записывается обработанный фрагмент…';}catch(err){status.textContent='Не удалось экспортировать видео: '+err.message;}}
+        function updateAppPreview(){const type=document.getElementById('appType').selectedOptions[0].text;document.getElementById('appPreviewName').textContent=document.getElementById('appName').value;document.getElementById('appPreviewPurpose').textContent=type+' · '+document.getElementById('appPurpose').value;}
+        function downloadAppStarter(){const name=document.getElementById('appName').value.trim()||'Моё приложение',purpose=document.getElementById('appPurpose').value.trim(),type=document.getElementById('appType').value;const html='<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101827"><link rel="manifest" href="manifest.json"><title>'+escapeHtml(name)+'</title><style>body{font:18px system-ui;background:#101827;color:#fff;padding:2rem;max-width:700px;margin:3rem auto}button{background:#00ffcc;border:0;padding:.8rem 1.2rem;border-radius:8px}</style><h1>'+escapeHtml(name)+'</h1><p>'+escapeHtml(purpose)+'</p><button onclick="alert(&quot;Прототип приложения готов к доработке!&quot;)">Начать</button></html>';const manifest={name,short_name:name.slice(0,12),description:purpose,display:'standalone',start_url:'./index.html',theme_color:'#101827',background_color:'#101827',categories:[type]};downloadBlob(html,'index.html');downloadBlob(JSON.stringify(manifest,null,2),'manifest.json','application/manifest+json');}
+
+        function initPhysicsPlayground(){if(physicsStarted)return;const canvas=document.getElementById('physicsPlayground'),ctx=canvas.getContext('2d');physicsStarted=true;const fit=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==w||canvas.height!==h)){canvas.width=w;canvas.height=h;if(!physicsBalls.length)for(let i=0;i<8;i++)physicsBalls.push({x:40+Math.random()*Math.max(1,w-80),y:30+Math.random()*120,vx:(Math.random()-.5)*4,vy:0,r:8+Math.random()*12,color:['#00ffcc','#8a2be2','#3b82f6'][i%3]});}};canvas.addEventListener('pointerdown',e=>{const r=canvas.getBoundingClientRect();physicsBalls.push({x:e.clientX-r.left,y:e.clientY-r.top,vx:(Math.random()-.5)*4,vy:-3,r:10+Math.random()*10,color:document.getElementById('designColor1').value||'#00ffcc'});});function frame(){fit();if(canvas.width&&canvas.height){ctx.clearRect(0,0,canvas.width,canvas.height);const g=Number(document.getElementById('physicsGravity').value),bounce=Number(document.getElementById('physicsBounce').value);for(const b of physicsBalls){b.vy+=g*.18;b.x+=b.vx;b.y+=b.vy;if(b.x<b.r){b.x=b.r;b.vx=Math.abs(b.vx)*bounce;}else if(b.x>canvas.width-b.r){b.x=canvas.width-b.r;b.vx=-Math.abs(b.vx)*bounce;}if(b.y>canvas.height-b.r){b.y=canvas.height-b.r;b.vy*=-bounce;if(Math.abs(b.vy)<.35)b.vy=0;}if(b.y<b.r){b.y=b.r;b.vy=Math.abs(b.vy);}ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle=b.color;ctx.shadowColor=b.color;ctx.shadowBlur=14;ctx.fill();ctx.shadowBlur=0;}}requestAnimationFrame(frame);}frame();}
+        function resetPhysicsPlayground(){const canvas=document.getElementById('physicsPlayground'),w=canvas.clientWidth||800;physicsBalls=Array.from({length:8},(_,i)=>({x:40+Math.random()*Math.max(1,w-80),y:20+Math.random()*120,vx:(Math.random()-.5)*4,vy:0,r:8+Math.random()*12,color:['#00ffcc','#8a2be2','#3b82f6'][i%3]}));}
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
+        }
+
+        window.onload = function() {
+            lucide.createIcons();
+            renderTeam();
+            initWorkspaceManager();
+            renderTerminalRooms(); renderTerminalLog();
+            updateSitePreview(); updateDesignPreview(); updateAppPreview();
+            initPhysicsCanvas();
+            initPhysicsPlayground();
+            setInterval(updateClock, 1000);
+            updateClock();
+            window.addEventListener('storage', event => { if(event.key==='mursoko_terminal_history_v1'){terminalHistory=JSON.parse(event.newValue||'{}');renderTerminalLog();} if(event.key==='mursoko_terminal_rooms_v1'){terminalRooms=JSON.parse(event.newValue||'[]');renderTerminalRooms();} if(event.key==='mursoko_workspace_catalog_v1'){workspaceCatalog=JSON.parse(event.newValue||'{}');populateWorkspaceProjects();} if(event.key==='mursoko_workspace_files_v1'){workspaceFiles=JSON.parse(event.newValue||'{}');if(workspaceScope==='shared')loadWorkspaceProject();} if(event.key==='mursoko_approved_accounts'){approvedUsers=JSON.parse(event.newValue||'{}');const who=localStorage.getItem('mursoko_logged');if(who&&approvedUsers[who])updateUserUI(who,false);} });
+
+            const logged = localStorage.getItem('mursoko_logged');
+            const isAdmin = localStorage.getItem('mursoko_is_admin') === 'true';
+
+            if (logged) {
+                updateUserUI(logged, isAdmin);
+            } else {
+                // Ensure guest view is rendered properly
+                document.getElementById('chatGuestLockBanner').classList.remove('hidden');
+                document.getElementById('chatMainContainer').classList.add('hidden');
+                showWelcomeGuide();
+            }
+        };
+    </script>
+</body>
+</html>
